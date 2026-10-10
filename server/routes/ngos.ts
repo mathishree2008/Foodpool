@@ -4,6 +4,27 @@ import { authenticateToken, AuthRequest } from './auth';
 
 export const ngosRouter = Router();
 
+function formatNgoResponse(n: NgoDoc) {
+  const lat = Number(n.lat) || 12.9815;
+  const lng = Number(n.lng) || 80.2180;
+  return {
+    ...n,
+    lat,
+    lng,
+    location: {
+      id: `loc-ngo-${n.id}`,
+      name: n.name || n.locationName || 'NGO Shelter',
+      city: n.city || 'Chennai',
+      district: n.district || n.city || 'Chennai',
+      lat,
+      lng,
+      landmark: n.locationName || '',
+      privacyZone: n.locationName || '',
+      fullAddress: n.address || ''
+    }
+  };
+}
+
 // LIST ALL NGOS
 ngosRouter.get('/', async (req: Request, res: Response) => {
   try {
@@ -14,7 +35,7 @@ ngosRouter.get('/', async (req: Request, res: Response) => {
       filter.city = city;
     }
     const list = await ngos.find(filter);
-    return res.json({ ngos: list });
+    return res.json({ ngos: list.map(formatNgoResponse) });
   } catch (err: any) {
     return res.status(500).json({ error: 'Failed to fetch NGOs: ' + err.message });
   }

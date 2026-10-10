@@ -104,14 +104,30 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
 
     const points: L.LatLngTuple[] = [];
 
+    const tripOriginLat = Number(activeTrip.origin?.lat ?? (activeTrip as any).originLat);
+    const tripOriginLng = Number(activeTrip.origin?.lng ?? (activeTrip as any).originLng);
+    const hasValidOrigin = !isNaN(tripOriginLat) && !isNaN(tripOriginLng) && tripOriginLat > 0;
+
+    const tripDestLat = Number(activeTrip.destination?.lat ?? (activeTrip as any).destinationLat);
+    const tripDestLng = Number(activeTrip.destination?.lng ?? (activeTrip as any).destinationLng);
+    const hasValidDest = !isNaN(tripDestLat) && !isNaN(tripDestLng) && tripDestLat > 0;
+
+    const donLat = Number(assignedDonation?.location?.lat ?? (assignedDonation as any)?.lat);
+    const donLng = Number(assignedDonation?.location?.lng ?? (assignedDonation as any)?.lng);
+    const hasValidDonLoc = !isNaN(donLat) && !isNaN(donLng) && donLat > 0;
+
+    const ngoLat = Number(assignedNgo?.location?.lat ?? (assignedNgo as any)?.lat);
+    const ngoLng = Number(assignedNgo?.location?.lng ?? (assignedNgo as any)?.lng);
+    const hasValidNgoLoc = !isNaN(ngoLat) && !isNaN(ngoLng) && ngoLat > 0;
+
     // Origin
-    if (activeTrip.origin?.lat && activeTrip.origin?.lng) {
-      points.push([activeTrip.origin.lat, activeTrip.origin.lng]);
+    if (hasValidOrigin) {
+      points.push([tripOriginLat, tripOriginLng]);
     }
 
     // Donor
-    if (assignedDonation?.location?.lat && assignedDonation?.location?.lng) {
-      points.push([assignedDonation.location.lat, assignedDonation.location.lng]);
+    if (hasValidDonLoc) {
+      points.push([donLat, donLng]);
 
       const donorPin = L.divIcon({
         className: 'donor-pin',
@@ -124,14 +140,14 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
         iconAnchor: [14, 14]
       });
 
-      L.marker([assignedDonation.location.lat, assignedDonation.location.lng], { icon: donorPin })
+      L.marker([donLat, donLng], { icon: donorPin })
         .addTo(map)
-        .bindPopup(`<b>Pickup: ${assignedDonation.donorName}</b><br/>${assignedDonation.items[0]?.name}`);
+        .bindPopup(`<b>Pickup: ${assignedDonation?.donorName || 'Food Donor'}</b><br/>${assignedDonation?.items?.[0]?.name || (assignedDonation as any)?.foodName || 'Prepared Meals'}`);
     }
 
     // Receiver NGO
-    if (assignedNgo?.location?.lat && assignedNgo?.location?.lng) {
-      points.push([assignedNgo.location.lat, assignedNgo.location.lng]);
+    if (hasValidNgoLoc) {
+      points.push([ngoLat, ngoLng]);
 
       const ngoPin = L.divIcon({
         className: 'ngo-pin',
@@ -144,14 +160,14 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
         iconAnchor: [14, 14]
       });
 
-      L.marker([assignedNgo.location.lat, assignedNgo.location.lng], { icon: ngoPin })
+      L.marker([ngoLat, ngoLng], { icon: ngoPin })
         .addTo(map)
-        .bindPopup(`<b>Destination: ${assignedNgo.name}</b><br/>${assignedNgo.beneficiaryCount} Beneficiaries`);
+        .bindPopup(`<b>Destination: ${assignedNgo?.name || 'NGO Shelter'}</b><br/>${assignedNgo?.beneficiaryCount || 50} Beneficiaries`);
     }
 
     // Destination
-    if (activeTrip.destination?.lat && activeTrip.destination?.lng) {
-      points.push([activeTrip.destination.lat, activeTrip.destination.lng]);
+    if (hasValidDest) {
+      points.push([tripDestLat, tripDestLng]);
     }
 
     // Draw route polyline
@@ -168,19 +184,19 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
     }
 
     // Volunteer Moving Pin
-    let currentLat = activeTrip.origin?.lat || 13.0418;
-    let currentLng = activeTrip.origin?.lng || 80.2341;
+    let currentLat = hasValidOrigin ? tripOriginLat : 13.0418;
+    let currentLng = hasValidOrigin ? tripOriginLng : 80.2341;
 
-    if (currentStage === 2 && assignedDonation?.location) {
-      currentLat = assignedDonation.location.lat;
-      currentLng = assignedDonation.location.lng;
-    } else if (currentStage === 3 && assignedDonation?.location && assignedNgo?.location) {
+    if (currentStage === 2 && hasValidDonLoc) {
+      currentLat = donLat;
+      currentLng = donLng;
+    } else if (currentStage === 3 && hasValidDonLoc && hasValidNgoLoc) {
       // Halfway between donor and receiver
-      currentLat = (assignedDonation.location.lat + assignedNgo.location.lat) / 2;
-      currentLng = (assignedDonation.location.lng + assignedNgo.location.lng) / 2;
-    } else if (currentStage === 4 && assignedNgo?.location) {
-      currentLat = assignedNgo.location.lat;
-      currentLng = assignedNgo.location.lng;
+      currentLat = (donLat + ngoLat) / 2;
+      currentLng = (donLng + ngoLng) / 2;
+    } else if (currentStage === 4 && hasValidNgoLoc) {
+      currentLat = ngoLat;
+      currentLng = ngoLng;
     }
 
     const volunteerIcon = L.divIcon({
@@ -202,7 +218,7 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
     } else {
       const marker = L.marker([currentLat, currentLng], { icon: volunteerIcon })
         .addTo(map)
-        .bindPopup(`<b>Volunteer: ${activeTrip.transporterName}</b><br/>Live delivery in progress`);
+        .bindPopup(`<b>Appointed NGO Coordinator: ${activeTrip.transporterName}</b><br/>Official NGO delivery in progress`);
       volunteerMarkerRef.current = marker;
     }
   }, [activeTrip, assignedDonation, assignedNgo, currentStage]);
@@ -235,7 +251,7 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Real-time Volunteer Notification: Expired / Stale Listing Alert */}
+      {/* Real-time NGO Coordinator Notification: Expired / Stale Listing Alert */}
       {activeTrip?.activeAlert && (
         <div className="bg-red-950/80 border-2 border-red-500 rounded-3xl p-5 shadow-2xl animate-pulse">
           <div className="flex items-start gap-3">
@@ -245,7 +261,7 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-500 text-black uppercase">
-                  Automated Volunteer Alert
+                  Automated NGO Coordinator Alert
                 </span>
                 <span className="text-xs text-red-300 font-mono">
                   {new Date(activeTrip.activeAlert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
@@ -255,7 +271,7 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
                 {activeTrip.activeAlert.message}
               </h3>
               <p className="text-xs text-red-200">
-                Backend cron calculation confirmed the duration between preparation and current time exceeded safe consumption limits. This pickup was detached to avoid distributing compromised food.
+                Backend cron calculation confirmed the duration between preparation and current time exceeded safe consumption limits. Appointed NGO Coordinator notified to halt pickup and discard the batch safely.
               </p>
             </div>
           </div>
@@ -268,11 +284,11 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-[#d4af37] animate-ping" />
             <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
-              <span>Volunteer Live Order Tracking Terminal</span>
+              <span>Appointed NGO Coordinator Live Delivery Terminal</span>
             </h2>
           </div>
           <p className="text-xs text-zinc-400 mt-1 max-w-2xl leading-relaxed">
-            Monitor the volunteer from the moment the order is accepted through pickup and until final handover at the shelter.
+            Every pickup and delivery is officially assigned to an authorized NGO Coordinator. Monitor active custody from dispatch through pickup and shelter handover.
           </p>
         </div>
 
@@ -289,7 +305,7 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
           >
             {trips.map((t) => (
               <option key={t.id} value={t.id}>
-                Volunteer: {t.transporterName} ({t.origin?.name || (t as any).originCity || 'Route'} → {t.destination?.name || (t as any).destinationCity || 'Destination'})
+                Coordinator: {t.transporterName} ({t.origin?.name || (t as any).originCity || 'Route'} → {t.destination?.name || (t as any).destinationCity || 'Destination'})
               </option>
             ))}
           </select>
@@ -321,7 +337,7 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
             </div>
             <h4 className="font-bold text-xs text-white">Order Accepted</h4>
             <p className="text-[11px] text-zinc-400 mt-0.5 leading-snug">
-              Volunteer routed along corridor.
+              Appointed NGO Coordinator en route along corridor.
             </p>
           </div>
 
@@ -414,10 +430,13 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
             <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37] animate-ping" />
             <div>
               <span className="font-bold text-white block">
-                Tracking Volunteer: {activeTrip?.transporterName}
+                Appointed NGO Coordinator: {activeTrip?.transporterName}
+              </span>
+              <span className="text-[10px] text-[#d4af37] font-medium block">
+                {activeTrip?.ngoOrganization || 'Udhavum Karangal Central Logistics'} · Badge #{activeTrip?.coordinatorBadgeId || 'NGO-COORD-TN-842'}
               </span>
               <span className="text-[10px] text-zinc-400">
-                Vehicle: {activeTrip?.vehicleNumber} ({activeTrip?.vehicleType?.split(' ')[0] || 'Vehicle'})
+                Logistics Carrier: {activeTrip?.vehicleNumber} ({activeTrip?.vehicleType?.split(' ')[0] || 'Vehicle'})
               </span>
             </div>
           </div>
@@ -536,24 +555,36 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
                 </div>
               </div>
 
-              {/* 5. Volunteer Contact Card */}
-              <div className="bg-black p-3.5 rounded-2xl border border-zinc-800 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] text-zinc-400 uppercase block font-semibold">
-                    Volunteer in Transit:
-                  </span>
-                  <span className="font-bold text-white block text-xs mt-0.5">
-                    {activeTrip?.transporterName}
-                  </span>
-                  <span className="text-[11px] text-zinc-400 flex items-center gap-1 mt-0.5">
+              {/* 5. Appointed NGO Coordinator Official Custody Card */}
+              <div className="bg-black p-3.5 rounded-2xl border border-zinc-800 space-y-2">
+                <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+                  <div>
+                    <span className="text-[10px] text-zinc-400 uppercase block font-semibold">
+                      Appointed NGO Coordinator:
+                    </span>
+                    <span className="font-bold text-white block text-xs mt-0.5">
+                      {activeTrip?.transporterName}
+                    </span>
+                    <span className="text-[10px] text-[#d4af37] font-mono block">
+                      Badge: {activeTrip?.coordinatorBadgeId || 'NGO-COORD-TN-842'} · {activeTrip?.transporterType || 'Appointed NGO Field Coordinator'}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] text-zinc-400 block">Organization:</span>
+                    <span className="font-bold text-zinc-200 text-xs block">
+                      {activeTrip?.ngoOrganization || 'Udhavum Karangal Central'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-zinc-400 pt-0.5">
+                  <span className="flex items-center gap-1 text-zinc-300">
                     <Phone className="w-3 h-3 text-[#d4af37]" />
                     {activeTrip?.phone}
                   </span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] text-zinc-400 block">Fuel Grant:</span>
-                  <span className="font-mono font-bold text-[#d4af37]">
-                    ₹{activeTrip?.fuelReimbursementEarned || 0}
+                  <span className="text-[10px] text-emerald-400 font-mono font-semibold flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                    Verified Custody
                   </span>
                 </div>
               </div>

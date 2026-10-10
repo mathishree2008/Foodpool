@@ -50,12 +50,14 @@ export const RoleLoginGateway: React.FC<RoleLoginGatewayProps> = ({
   const [urgentMealDemand, setUrgentMealDemand] = useState(60);
   const [dietaryPreference, setDietaryPreference] = useState<'Pure Veg Only' | 'Non-Veg Accepted' | 'Any'>('Pure Veg Only');
 
-  // VOLUNTEER / TRANSPORTER SPECIFIC FIELDS
-  const [volunteerType, setVolunteerType] = useState<'Daily Commuter' | 'College Student / NSS Volunteer' | 'Partner Delivery Rider' | 'Citizen Volunteer'>('Daily Commuter');
-  const [vehicleType, setVehicleType] = useState('Two Wheeler (Motorcycle / Scooter)');
+  // APPOINTED NGO COORDINATOR SPECIFIC FIELDS
+  const [coordinatorRole, setCoordinatorRole] = useState<'Appointed NGO Field Coordinator' | 'NGO Relief Logistics Officer' | 'Zonal Food Relief Coordinator' | 'Appointed NGO Logistics Coordinator'>('Appointed NGO Field Coordinator');
+  const [coordinatorNgoOrg, setCoordinatorNgoOrg] = useState('Udhavum Karangal Central Logistics');
+  const [coordinatorBadgeId, setCoordinatorBadgeId] = useState('NGO-COORD-TN-842');
+  const [vehicleType, setVehicleType] = useState('Four Wheeler (Sedan / Hatchback)');
   const [vehicleNumber, setVehicleNumber] = useState('TN 09 BK 4421');
   const [licenseNumber, setLicenseNumber] = useState('TN-09-2021-0081942');
-  const [capacityKg, setCapacityKg] = useState(25);
+  const [capacityKg, setCapacityKg] = useState(35);
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -94,6 +96,7 @@ export const RoleLoginGateway: React.FC<RoleLoginGatewayProps> = ({
         let orgName = name;
         if (activeTab === 'donor') orgName = establishmentName;
         if (activeTab === 'ngo') orgName = shelterName;
+        if (activeTab === 'transporter') orgName = coordinatorNgoOrg;
 
         const res = await api.auth.register({
           email,
@@ -134,7 +137,7 @@ export const RoleLoginGateway: React.FC<RoleLoginGatewayProps> = ({
           Welcome to <span className="text-[#d4af37] font-serif italic">FOODPOOL</span>
         </h1>
         <p className="text-zinc-300 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-          Select your role to connect small restaurants, hostel messes, bakeries, recipient shelters, and community delivery volunteers.
+          Select your role to connect small restaurants, hostel messes, bakeries, recipient shelters, and appointed NGO delivery coordinators.
         </p>
 
         {/* 1-Click Demo Quick Testing Bar */}
@@ -156,7 +159,7 @@ export const RoleLoginGateway: React.FC<RoleLoginGatewayProps> = ({
             onClick={() => handleQuickDemo('transporter')}
             className="px-3 py-1.5 rounded-xl bg-black hover:bg-zinc-900 border border-[#d4af37]/60 text-[#d4af37] text-xs font-semibold cursor-pointer transition-all shadow-sm"
           >
-            🚴 Login as Volunteer
+            🚴 Login as NGO Coordinator
           </button>
           <button
             onClick={onExploreGuest}
@@ -225,7 +228,7 @@ export const RoleLoginGateway: React.FC<RoleLoginGatewayProps> = ({
               </span>
             </button>
 
-            {/* Volunteer / Transporter */}
+            {/* Appointed NGO Coordinator */}
             <button
               type="button"
               onClick={() => {
@@ -240,13 +243,13 @@ export const RoleLoginGateway: React.FC<RoleLoginGatewayProps> = ({
             >
               <div className="space-y-1">
                 <Car className={`w-6 h-6 ${activeTab === 'transporter' ? 'text-[#d4af37]' : 'text-zinc-500'}`} />
-                <h3 className="font-bold text-sm text-white">VOLUNTEER</h3>
+                <h3 className="font-bold text-sm text-white">NGO COORDINATOR</h3>
                 <p className="text-[11px] text-zinc-400 leading-snug">
-                  Commuter, NSS Volunteer, Delivery Partner
+                  Appointed Coordinator for Pickup & Delivery Dispatch
                 </p>
               </div>
               <span className={`text-[10px] font-mono mt-2 font-semibold ${activeTab === 'transporter' ? 'text-[#d4af37]' : 'text-zinc-600'}`}>
-                {activeTab === 'transporter' ? '✓ Selected' : 'Choose Volunteer'}
+                {activeTab === 'transporter' ? '✓ Selected' : 'Choose Coordinator'}
               </span>
             </button>
           </div>
@@ -425,46 +428,72 @@ export const RoleLoginGateway: React.FC<RoleLoginGatewayProps> = ({
                 </div>
               )}
 
-              {/* --- 3. VOLUNTEER SPECIFIC DETAILS --- */}
+              {/* --- 3. APPOINTED NGO COORDINATOR SPECIFIC DETAILS --- */}
               {activeTab === 'transporter' && (
                 <div className="space-y-3 p-4 bg-zinc-950 rounded-2xl border border-[#d4af37]/30">
                   <span className="text-[11px] font-bold text-[#d4af37] uppercase tracking-wider block">
-                    Volunteer & Vehicle Details:
+                    Appointed NGO Coordinator & Logistics Dispatch Credentials:
                   </span>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-zinc-300 block mb-1">Volunteer Category:</label>
+                      <label className="text-zinc-300 block mb-1">Appointed NGO Organization:</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Udhavum Karangal Central Logistics"
+                        value={coordinatorNgoOrg}
+                        onChange={(e) => setCoordinatorNgoOrg(e.target.value)}
+                        className="w-full bg-black border border-zinc-800 rounded-xl p-2.5 text-white focus:border-[#d4af37] outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-zinc-300 block mb-1">Coordinator Officer Badge / ID:</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="NGO-COORD-TN-842"
+                        value={coordinatorBadgeId}
+                        onChange={(e) => setCoordinatorBadgeId(e.target.value)}
+                        className="w-full bg-black border border-zinc-800 rounded-xl p-2.5 text-white font-mono focus:border-[#d4af37] outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-zinc-300 block mb-1">Designated Coordinator Role:</label>
                       <select
-                        value={volunteerType}
-                        onChange={(e) => setVolunteerType(e.target.value as any)}
+                        value={coordinatorRole}
+                        onChange={(e) => setCoordinatorRole(e.target.value as any)}
                         className="w-full bg-black border border-zinc-800 rounded-xl p-2.5 text-white focus:border-[#d4af37] outline-none"
                       >
-                        <option value="Daily Commuter">Daily Office Commuter</option>
-                        <option value="College Student / NSS Volunteer">College Student / NSS Volunteer</option>
-                        <option value="Partner Delivery Rider">Partner Delivery Rider (Dunzo/Porter)</option>
-                        <option value="Citizen Volunteer">Citizen Volunteer Driver</option>
+                        <option value="Appointed NGO Field Coordinator">Appointed NGO Field Coordinator</option>
+                        <option value="NGO Relief Logistics Officer">NGO Relief Logistics Officer</option>
+                        <option value="Zonal Food Relief Coordinator">Zonal Food Relief Coordinator</option>
+                        <option value="Appointed NGO Logistics Coordinator">Appointed NGO Logistics Coordinator</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="text-zinc-300 block mb-1">Vehicle Type:</label>
+                      <label className="text-zinc-300 block mb-1">Logistics Carrier Vehicle:</label>
                       <select
                         value={vehicleType}
                         onChange={(e) => setVehicleType(e.target.value)}
                         className="w-full bg-black border border-zinc-800 rounded-xl p-2.5 text-white focus:border-[#d4af37] outline-none"
                       >
-                        <option value="Two Wheeler (Motorcycle / Scooter)">Two Wheeler (Bike / Scooter)</option>
-                        <option value="Four Wheeler (Sedan / Hatchback)">Car (Sedan / Hatchback)</option>
-                        <option value="Commercial Mini Van (Tata Ace / Auto)">Auto / Mini Cargo</option>
-                        <option value="Electric Vehicle (Ather / Ola)">EV Scooter</option>
+                        <option value="Four Wheeler (Sedan / Hatchback)">Insulated Food Logistics Van</option>
+                        <option value="Commercial Mini Van (Tata Ace / Auto)">Mini Cargo Carrier / Auto</option>
+                        <option value="Two Wheeler (Motorcycle / Scooter)">Rapid Zonal Courier Bike</option>
+                        <option value="Electric Vehicle (Ather / Ola)">Green Fleet EV Carrier</option>
                       </select>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="text-zinc-300 block mb-1">Vehicle Number:</label>
+                      <label className="text-zinc-300 block mb-1">Vehicle Registration No:</label>
                       <input
                         type="text"
                         required
@@ -476,7 +505,7 @@ export const RoleLoginGateway: React.FC<RoleLoginGatewayProps> = ({
                     </div>
 
                     <div>
-                      <label className="text-zinc-300 block mb-1">Driving License / ID:</label>
+                      <label className="text-zinc-300 block mb-1">Driving License / Govt ID:</label>
                       <input
                         type="text"
                         required
@@ -488,11 +517,11 @@ export const RoleLoginGateway: React.FC<RoleLoginGatewayProps> = ({
                     </div>
 
                     <div>
-                      <label className="text-zinc-300 block mb-1">Spare Carrying Space (kg):</label>
+                      <label className="text-zinc-300 block mb-1">Food Storage Capacity (kg):</label>
                       <input
                         type="number"
                         min="5"
-                        max="100"
+                        max="200"
                         value={capacityKg}
                         onChange={(e) => setCapacityKg(Number(e.target.value))}
                         className="w-full bg-black border border-zinc-800 rounded-xl p-2.5 text-white font-mono focus:border-[#d4af37] outline-none"

@@ -30,7 +30,7 @@ export const PROBLEMS_SOLUTION_MATRIX: ProblemSolutionItem[] = [
     liveStatus: 'Operating',
     metricTitle: 'Fail-Safe Dispatch',
     metricValue: 'Automated 15-min Confirmation + Backup Emergency Fleet',
-    demonstrationAction: 'Try "Dispatch Backup Transporter" button on any active transit to immediately route emergency volunteer network.',
+    demonstrationAction: 'Try "Dispatch Backup Transporter" button on any active transit to immediately route emergency NGO coordinator logistics fleet.',
     badge: 'Backup Resilience',
     color: 'blue'
   },

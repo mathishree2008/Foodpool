@@ -10,11 +10,14 @@ export interface StaleAuditRecord {
   safeConsumptionDeadline: string;
   durationMinutesElapsed: number;
   safeConsumptionWindowMinutes: number;
+  assignedCoordinatorId?: string;
+  assignedCoordinatorName?: string;
   assignedVolunteerId?: string;
   assignedVolunteerName?: string;
   purgedAt: string;
   reason: string;
-  volunteerNotified: boolean;
+  coordinatorNotified: boolean;
+  volunteerNotified?: boolean;
 }
 
 const auditLog: StaleAuditRecord[] = [];
@@ -22,7 +25,7 @@ const auditLog: StaleAuditRecord[] = [];
 /**
  * Calculates duration between preparedAt and current time for each donation.
  * If elapsed duration exceeds the safeConsumptionWindow, automatically updates status to 'EXPIRED_REJECTED' / 'expired'
- * and notifies the assigned volunteer with a real-time activeAlert record.
+ * and notifies the appointed NGO Coordinator with a real-time activeAlert record.
  */
 export async function purgeStaleDonations(): Promise<{
   purgedCount: number;
@@ -85,20 +88,20 @@ export async function purgeStaleDonations(): Promise<{
           }
         );
 
-        let volunteerNotified = false;
-        let assignedVolunteerName = donation.assignedVolunteerName;
-        const assignedTripId = donation.assignedTransporterId || donation.assignedVolunteerId;
+        let coordinatorNotified = false;
+        let assignedCoordinatorName = donation.assignedCoordinatorName || donation.assignedVolunteerName;
+        const assignedTripId = donation.assignedTransporterId || donation.assignedCoordinatorId || donation.assignedVolunteerId;
 
-        // 5. Notify assigned volunteer if assigned
+        // 5. Notify appointed NGO coordinator if assigned to trip
         if (assignedTripId) {
           const trip = await trips.findOne({ id: assignedTripId });
           if (trip && trip.status !== 'COMPLETED') {
-            assignedVolunteerName = trip.transporterName;
-            volunteerNotified = true;
+            assignedCoordinatorName = trip.transporterName;
+            coordinatorNotified = true;
 
             const alertNotice = {
               type: 'EXPIRED_DONATION' as const,
-              message: `URGENT ALERT: Donation order #${donation.id} (${donation.foodName || 'Surplus Meals'}) exceeded safe-consumption window (${windowMinutes} mins elapsed). Pickup cancelled automatically to preserve food hygiene.`,
+              message: `⚠️ CRITICAL EXPIRATION: Safe consumption window exceeded (${elapsedDurationMinutes}m elapsed since prep). Order #${donation.id} automatically marked expired. Appointed NGO Coordinator notified to halt pickup and discard batch safely.`,
               donationId: donation.id,
               foodName: donation.foodName || 'Surplus Meals',
               timestamp: expirationIso
@@ -108,14 +111,14 @@ export async function purgeStaleDonations(): Promise<{
               { id: trip.id },
               {
                 activeAlert: alertNotice,
-                // Detach expired donation from trip so volunteer route updates
+                // Detach expired donation from trip so coordinator route updates
                 assignedDonationId: undefined,
                 status: 'CANCELLED'
               }
             );
 
             console.log(
-              `[Auto-Scheduler] Notified Volunteer ${trip.transporterName} for expired donation ${donation.id}`
+              `[Auto-Scheduler] Notified Appointed NGO Coordinator ${trip.transporterName} for expired donation ${donation.id}`
             );
           }
         }
@@ -130,11 +133,14 @@ export async function purgeStaleDonations(): Promise<{
           safeConsumptionDeadline: new Date(deadlineTimestamp).toISOString(),
           durationMinutesElapsed: elapsedDurationMinutes,
           safeConsumptionWindowMinutes: windowMinutes,
+          assignedCoordinatorId: assignedTripId,
+          assignedCoordinatorName,
           assignedVolunteerId: assignedTripId,
-          assignedVolunteerName,
+          assignedVolunteerName: assignedCoordinatorName,
           purgedAt: expirationIso,
           reason: reasonMsg,
-          volunteerNotified
+          coordinatorNotified,
+          volunteerNotified: coordinatorNotified
         };
 
         auditLog.unshift(record);
@@ -172,7 +178,7 @@ export function startAutomatedScheduler(intervalMs = 20000) {
   if (schedulerTimer) return;
 
   console.log(
-    `[FOODPOOL Backend] Automated Safe-Consumption Window & Volunteer Notification Service active (Interval: ${intervalMs / 1000}s)`
+    `[FOODPOOL Backend] Automated Safe-Consumption Window & Appointed NGO Coordinator Notification Service active (Interval: ${intervalMs / 1000}s)`
   );
 
   // Run once immediately on start

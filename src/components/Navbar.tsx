@@ -9,7 +9,8 @@ import {
   Lock, 
   RotateCcw,
   Sparkles,
-  Layers
+  Layers,
+  LayoutDashboard
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -64,6 +65,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
+            onClick={() => onSelectRole('dashboard')}
+            className={`px-3 py-1.5 rounded-lg transition-all font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              currentRole === 'dashboard'
+                ? 'bg-zinc-900 text-[#d4af37] shadow-sm border border-[#d4af37]/40 font-semibold'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <LayoutDashboard className="w-3.5 h-3.5 text-[#d4af37]" />
+            <span>Live Dashboard</span>
+          </button>
+
+          <button
             onClick={() => onSelectRole('express_post')}
             className={`px-3 py-1.5 rounded-lg transition-all font-bold flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               currentRole === 'express_post'
@@ -111,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Car className="w-3.5 h-3.5 text-[#d4af37]" />
-            <span>Live Volunteer Tracking</span>
+            <span>NGO Coordinator Tracking</span>
           </button>
 
           <button
@@ -147,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Car className="w-3.5 h-3.5" />
-            <span>Volunteer Hub</span>
+            <span>Coordinator Hub</span>
           </button>
 
           <button

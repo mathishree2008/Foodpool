@@ -119,7 +119,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted, onExplor
                       className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-zinc-900 text-[#d4af37] border border-[#d4af37]/30 font-semibold text-left cursor-pointer hover:bg-zinc-800"
                     >
                       <LayoutDashboard className="w-3.5 h-3.5" />
-                      Live Volunteer Tracking
+                      NGO Coordinator Terminal
                     </button>
                     <button 
                       onClick={() => onNavigateTab ? onNavigateTab('surplus_map') : onExploreDashboard()}

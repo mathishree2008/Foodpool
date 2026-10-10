@@ -64,6 +64,118 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   return data;
 }
 
+export function normalizeTrip(t: any) {
+  if (!t) return t;
+  const originLat = Number(t.origin?.lat ?? t.originLat ?? 13.0418);
+  const originLng = Number(t.origin?.lng ?? t.originLng ?? 80.2341);
+  const destLat = Number(t.destination?.lat ?? t.destinationLat ?? 13.0067);
+  const destLng = Number(t.destination?.lng ?? t.destinationLng ?? 80.2025);
+
+  const origin = t.origin || {
+    id: `loc-origin-${t.id || 'def'}`,
+    name: t.originName || t.originCity || 'Origin',
+    city: t.originCity || 'Chennai',
+    district: t.originCity || 'Chennai',
+    lat: originLat,
+    lng: originLng,
+    landmark: t.originName || '',
+    privacyZone: t.originName || '',
+    fullAddress: t.originName || ''
+  };
+
+  const destination = t.destination || {
+    id: `loc-dest-${t.id || 'def'}`,
+    name: t.destinationName || t.destinationCity || 'Destination',
+    city: t.destinationCity || 'Chennai',
+    district: t.destinationCity || 'Chennai',
+    lat: destLat,
+    lng: destLng,
+    landmark: t.destinationName || '',
+    privacyZone: t.destinationName || '',
+    fullAddress: t.destinationName || ''
+  };
+
+  return {
+    ...t,
+    originLat,
+    originLng,
+    destinationLat: destLat,
+    destinationLng: destLng,
+    origin,
+    destination,
+    transitStepProgress: Number(t.transitStepProgress) || 35,
+    vehicleNumber: t.vehicleNumber || 'TN 09 BK 4421',
+    detourDistanceKm: Number(t.detourDistanceKm) || 0,
+    detourTimeMinutes: Number(t.detourTimeMinutes) || 0,
+    fuelReimbursementEarned: Number(t.fuelReimbursementEarned) || 0,
+    greenCreditsEarned: Number(t.greenCreditsEarned) || 0
+  };
+}
+
+export function normalizeDonation(d: any) {
+  if (!d) return d;
+  const lat = Number(d.location?.lat ?? d.lat ?? 13.0418);
+  const lng = Number(d.location?.lng ?? d.lng ?? 80.2341);
+  const servings = Number(d.totalServings ?? d.servings ?? 40);
+  const weightKg = Number(d.totalWeightKg ?? d.weightKg ?? 15);
+
+  const location = d.location || {
+    id: `loc-don-${d.id || 'def'}`,
+    name: d.locationName || d.address || d.city || 'Pickup Location',
+    city: d.city || 'Chennai',
+    district: d.district || d.city || 'Chennai',
+    lat,
+    lng,
+    landmark: d.locationName || '',
+    privacyZone: d.locationName || '',
+    fullAddress: d.address || ''
+  };
+
+  const items = d.items || [
+    {
+      name: d.foodName || 'Surplus Meals',
+      servings,
+      weightKg,
+      dietary: d.dietary || 'Pure Veg'
+    }
+  ];
+
+  return {
+    ...d,
+    lat,
+    lng,
+    totalServings: servings,
+    totalWeightKg: weightKg,
+    location,
+    items
+  };
+}
+
+export function normalizeNgo(n: any) {
+  if (!n) return n;
+  const lat = Number(n.location?.lat ?? n.lat ?? 12.9815);
+  const lng = Number(n.location?.lng ?? n.lng ?? 80.2180);
+
+  const location = n.location || {
+    id: `loc-ngo-${n.id || 'def'}`,
+    name: n.name || n.locationName || 'NGO Shelter',
+    city: n.city || 'Chennai',
+    district: n.district || n.city || 'Chennai',
+    lat,
+    lng,
+    landmark: n.locationName || '',
+    privacyZone: n.locationName || '',
+    fullAddress: n.address || ''
+  };
+
+  return {
+    ...n,
+    lat,
+    lng,
+    location
+  };
+}
+
 export const api = {
   auth: {
     async register(data: any): Promise<{ token: string; user: AuthUser }> {
@@ -103,14 +215,16 @@ export const api = {
       if (params.city && params.city !== 'All') q.append('city', params.city);
       if (params.status) q.append('status', params.status);
       const queryStr = q.toString() ? `?${q.toString()}` : '';
-      return request<{ donations: any[] }>(`/donations${queryStr}`);
+      const res = await request<{ donations: any[] }>(`/donations${queryStr}`);
+      return { donations: (res.donations || []).map(normalizeDonation) };
     },
 
     async create(data: any): Promise<{ donation: any; message: string }> {
-      return request<{ donation: any; message: string }>('/donations', {
+      const res = await request<{ donation: any; message: string }>('/donations', {
         method: 'POST',
         body: JSON.stringify(data)
       });
+      return { ...res, donation: normalizeDonation(res.donation) };
     },
 
     async updateStatus(id: string, status: string): Promise<any> {
@@ -132,7 +246,8 @@ export const api = {
   ngos: {
     async getAll(city?: string): Promise<{ ngos: any[] }> {
       const queryStr = city && city !== 'All' ? `?city=${encodeURIComponent(city)}` : '';
-      return request<{ ngos: any[] }>(`/ngos${queryStr}`);
+      const res = await request<{ ngos: any[] }>(`/ngos${queryStr}`);
+      return { ngos: (res.ngos || []).map(normalizeNgo) };
     },
 
     async acceptDonation(donationId: string, ngoId?: string): Promise<any> {
@@ -145,14 +260,16 @@ export const api = {
 
   trips: {
     async getAll(): Promise<{ trips: any[] }> {
-      return request<{ trips: any[] }>('/trips');
+      const res = await request<{ trips: any[] }>('/trips');
+      return { trips: (res.trips || []).map(normalizeTrip) };
     },
 
     async create(data: any): Promise<{ trip: any; message: string }> {
-      return request<{ trip: any; message: string }>('/trips', {
+      const res = await request<{ trip: any; message: string }>('/trips', {
         method: 'POST',
         body: JSON.stringify(data)
       });
+      return { ...res, trip: normalizeTrip(res.trip) };
     },
 
     async getMatches(tripId: string): Promise<{ matches: any[] }> {

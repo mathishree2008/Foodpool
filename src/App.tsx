@@ -14,6 +14,7 @@ import { ExpressZeroLoginPost } from './components/ExpressZeroLoginPost';
 import { ClusterRouteView } from './components/ClusterRouteView';
 import { SurplusMapRadar } from './components/SurplusMapRadar';
 import { VolunteerLiveTracking } from './components/VolunteerLiveTracking';
+import { OverviewRadar } from './components/OverviewRadar';
 import { DonorPortal } from './components/DonorPortal';
 import { TransporterPortal } from './components/TransporterPortal';
 import { NgoPortal } from './components/NgoPortal';
@@ -231,7 +232,7 @@ export default function App() {
           />
         )}
 
-        {/* 3. DEDICATED LIVE VOLUNTEER ORDER TRACKING PAGE */}
+        {/* 3. DEDICATED LIVE NGO COORDINATOR ORDER TRACKING PAGE */}
         {currentRole === 'volunteer_tracking' && (
           <VolunteerLiveTracking
             trips={trips}
@@ -241,12 +242,23 @@ export default function App() {
           />
         )}
 
-        {/* 4. OVERVIEW / HERO & LEAFLET ROAD ROUTING VIEW */}
+        {/* 4. FOODPOOL LIVE OPERATIONAL DASHBOARD */}
+        {currentRole === 'dashboard' && (
+          <OverviewRadar
+            donations={donations}
+            ngos={ngos}
+            trips={trips}
+            onSelectRole={setCurrentRole}
+            onOpenPrivacyModal={() => setIsPrivacyModalOpen(true)}
+          />
+        )}
+
+        {/* 5. OVERVIEW / HERO & LEAFLET ROAD ROUTING VIEW */}
         {currentRole === 'overview' && (
           <>
             <HeroSection
               onGetStarted={() => setCurrentRole('login_gateway')}
-              onExploreDashboard={() => setCurrentRole('volunteer_tracking')}
+              onExploreDashboard={() => setCurrentRole('dashboard')}
               onNavigateTab={(tab) => setCurrentRole(tab)}
             />
 
@@ -278,7 +290,7 @@ export default function App() {
           />
         )}
 
-        {/* 6. DISTINCT VOLUNTEER / TRANSPORTER DASHBOARD LAYOUT */}
+        {/* 6. DISTINCT NGO COORDINATOR DASHBOARD LAYOUT */}
         {currentRole === 'transporter' && (
           <TransporterPortal
             trips={trips}

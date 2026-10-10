@@ -344,7 +344,7 @@ export const ClusterRouteView: React.FC<ClusterRouteViewProps> = ({
                       </div>
 
                       <button
-                        onClick={() => alert(`Triggered immediate 500m walk-in local alert for ${item.donation.donorName} (${item.donation.totalServings} meals). Local volunteers within walking distance notified.`)}
+                        onClick={() => alert(`Triggered immediate 500m walk-in local alert for ${item.donation.donorName} (${item.donation.totalServings} meals). Appointed NGO field coordinator notified.`)}
                         className="px-3 py-1.5 rounded-lg bg-rose-900/40 hover:bg-rose-900 text-rose-200 text-[11px] font-semibold border border-rose-700 cursor-pointer"
                       >
                         Trigger 500m Walk-In Rescue →

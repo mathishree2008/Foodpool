@@ -24,6 +24,40 @@ donationsRouter.get('/stale-audit', (req: Request, res: Response) => {
   return res.json({ logs });
 });
 
+function formatDonationResponse(d: DonationDoc) {
+  const lat = Number(d.lat) || 13.0418;
+  const lng = Number(d.lng) || 80.2341;
+  const servings = Number(d.servings) || 0;
+  const weightKg = Number(d.weightKg) || 0;
+
+  return {
+    ...d,
+    lat,
+    lng,
+    totalServings: (d as any).totalServings ?? servings,
+    totalWeightKg: (d as any).totalWeightKg ?? weightKg,
+    location: {
+      id: `loc-don-${d.id}`,
+      name: d.locationName || d.address || d.city || 'Donation Pickup',
+      city: d.city || 'Chennai',
+      district: (d as any).district || d.city || 'Chennai',
+      lat,
+      lng,
+      landmark: d.locationName || '',
+      privacyZone: d.locationName || '',
+      fullAddress: d.address || ''
+    },
+    items: (d as any).items || [
+      {
+        name: d.foodName || 'Surplus Food Batch',
+        servings,
+        weightKg,
+        dietary: d.dietary || 'Pure Veg'
+      }
+    ]
+  };
+}
+
 // LIST ALL DONATIONS
 donationsRouter.get('/', async (req: Request, res: Response) => {
   try {
@@ -46,7 +80,7 @@ donationsRouter.get('/', async (req: Request, res: Response) => {
     // Sort with most recently created first
     list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    return res.json({ donations: list });
+    return res.json({ donations: list.map(formatDonationResponse) });
   } catch (err: any) {
     return res.status(500).json({ error: 'Failed to fetch donations: ' + err.message });
   }
@@ -60,7 +94,7 @@ donationsRouter.get('/:id', async (req: Request, res: Response) => {
     if (!donation) {
       return res.status(404).json({ error: 'Donation listing not found.' });
     }
-    return res.json({ donation });
+    return res.json({ donation: formatDonationResponse(donation) });
   } catch (err: any) {
     return res.status(500).json({ error: 'Failed to get donation: ' + err.message });
   }

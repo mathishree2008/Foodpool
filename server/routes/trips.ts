@@ -19,6 +19,49 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return Number((R * c).toFixed(2));
 }
 
+function formatTripResponse(t: TripDoc) {
+  const originLat = Number(t.originLat) || 13.0418;
+  const originLng = Number(t.originLng) || 80.2341;
+  const destLat = Number(t.destinationLat) || 13.0067;
+  const destLng = Number(t.destinationLng) || 80.2025;
+
+  return {
+    ...t,
+    originLat,
+    originLng,
+    destinationLat: destLat,
+    destinationLng: destLng,
+    origin: {
+      id: `loc-origin-${t.id}`,
+      name: t.originName || t.originCity || 'Origin',
+      city: t.originCity || 'Chennai',
+      district: t.originCity || 'Chennai',
+      lat: originLat,
+      lng: originLng,
+      landmark: t.originName || '',
+      privacyZone: t.originName || '',
+      fullAddress: t.originName || ''
+    },
+    destination: {
+      id: `loc-dest-${t.id}`,
+      name: t.destinationName || t.destinationCity || 'Destination',
+      city: t.destinationCity || 'Chennai',
+      district: t.destinationCity || 'Chennai',
+      lat: destLat,
+      lng: destLng,
+      landmark: t.destinationName || '',
+      privacyZone: t.destinationName || '',
+      fullAddress: t.destinationName || ''
+    },
+    transitStepProgress: (t as any).transitStepProgress ?? (t.status === 'COMPLETED' ? 100 : t.status === 'PICKED_UP' ? 60 : 35),
+    vehicleNumber: t.vehicleNumber || 'TN 09 BK 4421',
+    detourDistanceKm: Number(t.detourDistanceKm) || 0,
+    detourTimeMinutes: Number(t.detourTimeMinutes) || 0,
+    fuelReimbursementEarned: Number(t.fuelReimbursementEarned) || 0,
+    greenCreditsEarned: Number(t.greenCreditsEarned) || 0
+  };
+}
+
 // GET ALL TRIPS
 tripsRouter.get('/', async (req: Request, res: Response) => {
   try {
@@ -30,7 +73,7 @@ tripsRouter.get('/', async (req: Request, res: Response) => {
 
     const list = await trips.find(filter);
     list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    return res.json({ trips: list });
+    return res.json({ trips: list.map(formatTripResponse) });
   } catch (err: any) {
     return res.status(500).json({ error: 'Failed to fetch trips: ' + err.message });
   }
@@ -42,7 +85,7 @@ tripsRouter.get('/:id', async (req: Request, res: Response) => {
     const trips = db.collection<TripDoc>('trips');
     const trip = await trips.findOne({ id: req.params.id });
     if (!trip) return res.status(404).json({ error: 'Trip not found.' });
-    return res.json({ trip });
+    return res.json({ trip: formatTripResponse(trip) });
   } catch (err: any) {
     return res.status(500).json({ error: 'Failed to get trip: ' + err.message });
   }
@@ -78,7 +121,9 @@ tripsRouter.post('/', authenticateToken, async (req: AuthRequest, res: Response)
       id: `trip-${Date.now().toString().slice(-5)}`,
       transporterId: user.id,
       transporterName: user.name,
-      transporterType: 'Daily Commuter',
+      transporterType: (req.body.transporterType as any) || 'Appointed NGO Field Coordinator',
+      ngoOrganization: req.body.ngoOrganization || (user as any).organization || 'Appointed NGO Logistics Consortium',
+      coordinatorBadgeId: req.body.coordinatorBadgeId || (user as any).badgeId || `NGO-COORD-TN-${Math.floor(100 + Math.random() * 899)}`,
       phone: user.phone,
       licenseNumber: user.licenseNumber || 'TN-09-2021-0081942',
       isLicenseVerified: true,

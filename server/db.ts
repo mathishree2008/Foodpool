@@ -32,6 +32,7 @@ export interface DonationDoc {
   isFssaiVerified: boolean;
   phone: string;
   city: string;
+  district?: string;
   locationName: string;
   lat: number;
   lng: number;
@@ -52,6 +53,8 @@ export interface DonationDoc {
   deliveryOtp: string;
   reservedNgoId?: string;
   assignedTransporterId?: string;
+  assignedCoordinatorId?: string;
+  assignedCoordinatorName?: string;
   assignedVolunteerId?: string;
   assignedVolunteerName?: string;
   safetyChecklist: {
@@ -94,6 +97,8 @@ export interface TripDoc {
   transporterId: string;
   transporterName: string;
   transporterType: string;
+  ngoOrganization?: string;
+  coordinatorBadgeId?: string;
   phone: string;
   licenseNumber: string;
   isLicenseVerified: boolean;
@@ -371,8 +376,10 @@ const INITIAL_DB: DbSchema = {
     {
       id: 'trip-101',
       transporterId: 'user-trans-1',
-      transporterName: 'Karthik Ramanathan',
-      transporterType: 'Daily Commuter',
+      transporterName: 'K. Selvam (Appointed NGO Logistics Coordinator)',
+      transporterType: 'Appointed NGO Field Coordinator',
+      ngoOrganization: 'Udhavum Karangal Central Logistics',
+      coordinatorBadgeId: 'NGO-COORD-TN-842',
       phone: '+91 98841 90281',
       licenseNumber: 'TN-09-2019-0048192',
       isLicenseVerified: true,

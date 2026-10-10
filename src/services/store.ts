@@ -231,8 +231,10 @@ export function triggerBackupTransporter(tripId: string): boolean {
   if (!trip) return false;
 
   trip.isBackupDispatched = true;
-  trip.transporterName = 'FoodPool Emergency Partner Fleet (NSS Rapid Volunteer + Porter Direct)';
-  trip.transporterType = 'Emergency Backup Fleet';
+  trip.transporterName = 'FoodPool Emergency NGO Logistics Fleet (Rapid Regional Dispatch)';
+  trip.transporterType = 'Emergency NGO Backup Fleet';
+  trip.ngoOrganization = 'Tamil Nadu Food Security NGO Consortium';
+  trip.coordinatorBadgeId = 'NGO-COORD-TN-999';
   trip.vehicleType = 'Commercial Mini Van (Tata Ace / Auto)';
   trip.vehicleNumber = 'TN 02 EV 9901 (Dedicated Relief)';
   trip.trafficDelayMinutes = 0;

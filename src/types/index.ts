@@ -1,5 +1,6 @@
 export type UserRole = 
   | 'overview' 
+  | 'dashboard'
   | 'express_post'
   | 'clusters_routing'
   | 'login_gateway' 
@@ -84,6 +85,8 @@ export interface FoodDonation {
   deliveryOtp: string; // 6 digits (revealed to NGO for final delivery)
   reservedNgoId?: string;
   assignedTransporterId?: string;
+  assignedCoordinatorId?: string;
+  assignedCoordinatorName?: string;
   assignedVolunteerId?: string;
   assignedVolunteerName?: string;
   safetyChecklist: {
@@ -108,6 +111,11 @@ export type VehicleType =
   | 'Electric Vehicle (Ather / Ola)';
 
 export type TransporterType = 
+  | 'Appointed NGO Field Coordinator' 
+  | 'NGO Relief Logistics Officer' 
+  | 'Zonal Food Relief Coordinator' 
+  | 'Appointed NGO Logistics Coordinator' 
+  | 'Emergency NGO Backup Fleet'
   | 'Daily Commuter' 
   | 'College Student / NSS Volunteer' 
   | 'Corporate Carpooler' 
@@ -128,6 +136,8 @@ export interface TransporterTrip {
   id: string;
   transporterName: string;
   transporterType: TransporterType;
+  ngoOrganization?: string;
+  coordinatorBadgeId?: string;
   phone: string;
   licenseNumber: string;
   isLicenseVerified: boolean;

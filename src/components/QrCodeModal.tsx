@@ -190,7 +190,7 @@ export const QrCodeModal: React.FC<QrCodeModalProps> = ({
             <p className="text-xs text-neutral-300 max-w-xs">
               {mode === 'sticker'
                 ? 'Print and stick on the kitchen counter. Small shop owners scan to report surplus in under 30s with zero login.'
-                : `Show to the volunteer courier to verify pickup custody for Batch #${donationId}.`}
+                : `Show to the appointed NGO coordinator to verify pickup custody for Batch #${donationId}.`}
             </p>
           </div>
         </div>

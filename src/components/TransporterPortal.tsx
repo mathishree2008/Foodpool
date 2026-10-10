@@ -55,10 +55,10 @@ export const TransporterPortal: React.FC<TransporterPortalProps> = ({
   const [selectedTripId, setSelectedTripId] = useState<string>(trips[0]?.id || '');
   
   // New Trip form state
-  const [name, setName] = useState('Anitha Sridhar');
-  const [transporterType, setTransporterType] = useState<TransporterType>('Daily Commuter');
+  const [name, setName] = useState('K. Selvam (Appointed Coordinator)');
+  const [transporterType, setTransporterType] = useState<TransporterType>('Appointed NGO Field Coordinator');
   const [vehicleType, setVehicleType] = useState<VehicleType>('Four Wheeler (Sedan / Hatchback)');
-  const [vehicleNumber, setVehicleNumber] = useState('TN 09 BX 2931');
+  const [vehicleNumber, setVehicleNumber] = useState('TN 09 BK 4421');
   const [licenseNumber, setLicenseNumber] = useState('TN-09-2021-0081942');
   const [originId, setOriginId] = useState(TAMIL_NADU_LOCATIONS[0].id);
   const [destinationId, setDestinationId] = useState(TAMIL_NADU_LOCATIONS[1].id);
@@ -170,12 +170,11 @@ export const TransporterPortal: React.FC<TransporterPortalProps> = ({
       <div className="bg-gradient-to-r from-blue-950/40 via-slate-900 to-slate-900 border border-blue-900/40 rounded-2xl p-5 md:p-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Car className="w-5 h-5 text-blue-400" />
-            <h2 className="text-lg font-bold text-slate-100">Transporter & Commuter Route Pooling</h2>
+            <Car className="w-5 h-5 text-[#d4af37]" />
+            <h2 className="text-lg font-bold text-slate-100">Appointed NGO Coordinator Dispatch & Route Terminal</h2>
           </div>
           <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
-            Turn your daily Tamil Nadu travel into food rescue missions. Deliver surplus food within your planned
-            route corridor with minimal detours, full fuel reimbursements, and automated backup support.
+            Every pickup and delivery is officially assigned to an authorized NGO Coordinator. Dispatch insulated carriers and rapid zonal logistics across Tamil Nadu corridors with verified dual-OTP custody and real-time spoilage sentinel alerts.
           </p>
         </div>
 
@@ -219,7 +218,7 @@ export const TransporterPortal: React.FC<TransporterPortalProps> = ({
 
           {activeTrip && (
             <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 space-y-4 shadow-xl">
-              {/* Automated Volunteer Notification on Expiration */}
+              {/* Automated NGO Coordinator Notification on Expiration */}
               {activeTrip.activeAlert && (
                 <div className="p-4 rounded-xl bg-red-950/80 border border-red-500 flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
@@ -359,7 +358,7 @@ export const TransporterPortal: React.FC<TransporterPortalProps> = ({
 
                 {activeTrip.isBackupDispatched && (
                   <p className="text-[11px] text-emerald-400 font-medium">
-                    ✓ Emergency backup volunteer partner dispatched to prevent handover delay.
+                    ✓ Emergency backup NGO Logistics coordinator dispatched to prevent handover delay.
                   </p>
                 )}
               </div>
@@ -604,18 +603,16 @@ export const TransporterPortal: React.FC<TransporterPortalProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-slate-300 font-medium block mb-1">Commuter Type:</label>
+                  <label className="text-slate-300 font-medium block mb-1">Coordinator Designation:</label>
                   <select
                     value={transporterType}
                     onChange={(e) => setTransporterType(e.target.value as any)}
                     className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200"
                   >
-                    <option value="Daily Commuter">Daily Office Commuter</option>
-                    <option value="College Student / NSS Volunteer">College Student / NSS Volunteer</option>
-                    <option value="Corporate Carpooler">Corporate Carpooler</option>
-                    <option value="Partner Delivery Partner (Dunzo/Porter Volunteer)">
-                      Partner Delivery Volunteer
-                    </option>
+                    <option value="Appointed NGO Field Coordinator">Appointed NGO Field Coordinator</option>
+                    <option value="NGO Relief Logistics Officer">NGO Relief Logistics Officer</option>
+                    <option value="Zonal Food Relief Coordinator">Zonal Food Relief Coordinator</option>
+                    <option value="Appointed NGO Logistics Coordinator">Appointed NGO Logistics Coordinator</option>
                   </select>
                 </div>
               </div>

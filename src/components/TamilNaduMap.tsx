@@ -14,7 +14,7 @@ interface TamilNaduMapProps {
 
 // Convert TN coordinates to SVG canvas space (width 820, height 700)
 // Tamil Nadu spans roughly lat: 8.1 to 13.5, lng: 76.2 to 80.4
-function projectCoordinates(lat: number, lng: number): { x: number; y: number } {
+function projectCoordinates(lat?: number, lng?: number): { x: number; y: number } {
   const minLat = 8.1;
   const maxLat = 13.5;
   const minLng = 76.2;
@@ -24,14 +24,20 @@ function projectCoordinates(lat: number, lng: number): { x: number; y: number } 
   const height = 700;
   const padding = 50;
 
-  const xNorm = (lng - minLng) / (maxLng - minLng);
+  const validLat = typeof lat === 'number' && !isNaN(lat) ? lat : 13.0418;
+  const validLng = typeof lng === 'number' && !isNaN(lng) ? lng : 80.2341;
+
+  const xNorm = (validLng - minLng) / (maxLng - minLng);
   // Invert Y because higher latitude is further North (top of map)
-  const yNorm = (maxLat - lat) / (maxLat - minLat);
+  const yNorm = (maxLat - validLat) / (maxLat - minLat);
 
   const x = padding + xNorm * (width - 2 * padding);
   const y = padding + yNorm * (height - 2 * padding);
 
-  return { x: Math.round(x), y: Math.round(y) };
+  return {
+    x: isNaN(x) ? padding : Math.round(x),
+    y: isNaN(y) ? padding : Math.round(y)
+  };
 }
 
 export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
@@ -53,11 +59,23 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
     ? ngos.find((n) => n.id === currentTrip.assignedNgoId)
     : undefined;
 
+  // Safe coordinate fallbacks
+  const originLat = currentTrip ? Number(currentTrip.origin?.lat ?? (currentTrip as any).originLat ?? 13.0418) : 13.0418;
+  const originLng = currentTrip ? Number(currentTrip.origin?.lng ?? (currentTrip as any).originLng ?? 80.2341) : 80.2341;
+  const destLat = currentTrip ? Number(currentTrip.destination?.lat ?? (currentTrip as any).destinationLat ?? 13.0067) : 13.0067;
+  const destLng = currentTrip ? Number(currentTrip.destination?.lng ?? (currentTrip as any).destinationLng ?? 80.2025) : 80.2025;
+
+  const donorLat = activeDonation ? Number(activeDonation.location?.lat ?? (activeDonation as any).lat ?? 13.0418) : null;
+  const donorLng = activeDonation ? Number(activeDonation.location?.lng ?? (activeDonation as any).lng ?? 80.2341) : null;
+
+  const ngoLat = activeNgo ? Number(activeNgo.location?.lat ?? (activeNgo as any).lat ?? 12.9815) : null;
+  const ngoLng = activeNgo ? Number(activeNgo.location?.lng ?? (activeNgo as any).lng ?? 80.2180) : null;
+
   // Compute SVG projection points for the active trip
-  const pOrigin = currentTrip ? projectCoordinates(currentTrip.origin.lat, currentTrip.origin.lng) : null;
-  const pDest = currentTrip ? projectCoordinates(currentTrip.destination.lat, currentTrip.destination.lng) : null;
-  const pDonor = activeDonation ? projectCoordinates(activeDonation.location.lat, activeDonation.location.lng) : null;
-  const pNgo = activeNgo ? projectCoordinates(activeNgo.location.lat, activeNgo.location.lng) : null;
+  const pOrigin = currentTrip ? projectCoordinates(originLat, originLng) : null;
+  const pDest = currentTrip ? projectCoordinates(destLat, destLng) : null;
+  const pDonor = (donorLat !== null && donorLng !== null) ? projectCoordinates(donorLat, donorLng) : null;
+  const pNgo = (ngoLat !== null && ngoLng !== null) ? projectCoordinates(ngoLat, ngoLng) : null;
 
   // Major Tamil Nadu city hubs for background anchor circles
   const cityAnchors = [
@@ -245,7 +263,8 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
                   // Interpolate vehicle position based on transitStepProgress
                   let vx = pOrigin.x;
                   let vy = pOrigin.y;
-                  const progress = currentTrip.transitStepProgress / 100;
+                  const rawProgress = Number(currentTrip.transitStepProgress);
+                  const progress = (isNaN(rawProgress) ? 35 : rawProgress) / 100;
 
                   if (pDonor && pNgo) {
                     if (progress <= 0.35) {
@@ -269,8 +288,11 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
                     vy = pOrigin.y + (pDest.y - pDest.y) * progress;
                   }
 
+                  const safeVx = isNaN(vx) ? pOrigin.x : Math.round(vx);
+                  const safeVy = isNaN(vy) ? pOrigin.y : Math.round(vy);
+
                   return (
-                    <g transform={`translate(${vx}, ${vy})`}>
+                    <g transform={`translate(${safeVx}, ${safeVy})`}>
                       <circle r="16" fill="#10b981" opacity="0.25" className="animate-ping" />
                       <circle r="10" fill="#0f172a" stroke="#10b981" strokeWidth="2.5" />
                       <circle r="4" fill="#34d399" />
@@ -283,7 +305,7 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
                         fontWeight="700"
                         fontFamily="monospace"
                       >
-                        {currentTrip.vehicleNumber.split(' ')[0]}
+                        {((currentTrip.vehicleNumber || 'TN 09').split(' ')[0])}
                       </text>
                     </g>
                   );
@@ -292,8 +314,10 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
             )}
 
             {/* Donor Nodes */}
-            {donations.map((d) => {
-              const p = projectCoordinates(d.location.lat, d.location.lng);
+            {donations.filter(Boolean).map((d) => {
+              const dLat = Number(d.location?.lat ?? (d as any).lat ?? 13.0418);
+              const dLng = Number(d.location?.lng ?? (d as any).lng ?? 80.2341);
+              const p = projectCoordinates(dLat, dLng);
               const isAssigned = d.id === currentTrip?.assignedDonationId;
               const isHovered = activeHoverId === d.id;
 
@@ -343,7 +367,7 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
                         fontSize="9"
                         fontWeight="600"
                       >
-                        {d.donorName.slice(0, 20)}
+                        {(d.donorName || 'Food Donor').slice(0, 20)}
                       </text>
                     </g>
                   )}
@@ -352,8 +376,10 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
             })}
 
             {/* Recipient NGO Nodes */}
-            {ngos.map((n) => {
-              const p = projectCoordinates(n.location.lat, n.location.lng);
+            {ngos.filter(Boolean).map((n) => {
+              const nLat = Number(n.location?.lat ?? (n as any).lat ?? 12.9815);
+              const nLng = Number(n.location?.lng ?? (n as any).lng ?? 80.2180);
+              const p = projectCoordinates(nLat, nLng);
               const isAssigned = n.id === currentTrip?.assignedNgoId;
               const isHovered = activeHoverId === n.id;
 
@@ -403,7 +429,7 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
                         fontSize="9"
                         fontWeight="600"
                       >
-                        {n.name.slice(0, 22)}
+                        {(n.name || 'Recipient NGO').slice(0, 22)}
                       </text>
                     </g>
                   )}
@@ -456,7 +482,7 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
               >
                 {trips.map((t) => (
                   <option key={t.id} value={t.id}>
-                    {t.transporterName} ({t.origin.city} - {t.vehicleType.split(' ')[0]})
+                    {t.transporterName} ({t.origin?.city || (t as any).originCity || 'Tamil Nadu'} - {((t.vehicleType || 'Vehicle').split(' ')[0])})
                   </option>
                 ))}
               </select>
@@ -469,7 +495,9 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
                   <div className="w-2 h-2 rounded-full bg-slate-400 mt-1 shrink-0" />
                   <div>
                     <span className="text-[10px] text-slate-500 uppercase block">Commuter Origin</span>
-                    <span className="text-slate-200 font-medium">{currentTrip.origin.name}</span>
+                    <span className="text-slate-200 font-medium">
+                      {currentTrip.origin?.name || currentTrip.origin?.city || (currentTrip as any).originCity || 'Origin Location'}
+                    </span>
                   </div>
                 </div>
 
@@ -480,7 +508,7 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
                       <span className="text-[10px] text-amber-400 uppercase block">Way-Point 1: Donor Pickup</span>
                       <span className="text-slate-200 font-medium">{activeDonation.donorName}</span>
                       <p className="text-[11px] text-slate-400">
-                        {activeDonation.totalServings} servings ({activeDonation.totalWeightKg} kg)
+                        {Number(activeDonation.totalServings ?? (activeDonation as any).servings) || 0} servings ({Number(activeDonation.totalWeightKg ?? (activeDonation as any).weightKg) || 0} kg)
                       </p>
                     </div>
                   </div>
@@ -500,7 +528,9 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
                   <div className="w-2 h-2 rounded-full bg-slate-400 mt-1 shrink-0" />
                   <div>
                     <span className="text-[10px] text-slate-500 uppercase block">Commuter Final Destination</span>
-                    <span className="text-slate-200 font-medium">{currentTrip.destination.name}</span>
+                    <span className="text-slate-200 font-medium">
+                      {currentTrip.destination?.name || currentTrip.destination?.city || (currentTrip as any).destinationCity || 'Final Destination'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -512,19 +542,19 @@ export const TamilNaduMap: React.FC<TamilNaduMapProps> = ({
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-slate-400">Added Detour Distance:</span>
                   <span className="font-mono text-emerald-400 font-semibold">
-                    +{currentTrip.detourDistanceKm} km (~{currentTrip.detourTimeMinutes} min)
+                    +{Number(currentTrip.detourDistanceKm) || 0} km (~{Number(currentTrip.detourTimeMinutes) || 0} min)
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-slate-400">CSR Fuel Reimbursement:</span>
                   <span className="font-mono text-amber-400 font-semibold">
-                    ₹{currentTrip.fuelReimbursementEarned} (@ ₹18/km)
+                    ₹{Number(currentTrip.fuelReimbursementEarned) || 0} (@ ₹18/km)
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-slate-400">CO₂ Avoided / Green Credit:</span>
                   <span className="font-mono text-teal-300 font-semibold">
-                    +{currentTrip.greenCreditsEarned} kg CO₂ eq
+                    +{Number(currentTrip.greenCreditsEarned) || 0} kg CO₂ eq
                   </span>
                 </div>
               </div>
