@@ -1,1 +1,29 @@
 @import "tailwindcss";
+
+@layer utilities {
+  .border-gold {
+    border-color: #d4af37;
+  }
+  .text-gold {
+    color: #d4af37;
+  }
+  .bg-gold {
+    background-color: #d4af37;
+  }
+}
+
+/* Custom scrollbars and sleek dark luxury styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d4af37;
+}

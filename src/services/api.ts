@@ -118,6 +118,14 @@ export const api = {
         method: 'PATCH',
         body: JSON.stringify({ status })
       });
+    },
+
+    async purgeStale(): Promise<{ purgedCount: number; purgedItems: any[]; message: string }> {
+      return request('/donations/purge-stale', { method: 'POST' });
+    },
+
+    async getStaleAudit(): Promise<{ logs: any[] }> {
+      return request('/donations/stale-audit');
     }
   },
 

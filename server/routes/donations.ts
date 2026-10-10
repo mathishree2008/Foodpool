@@ -1,8 +1,28 @@
 import { Router, Request, Response } from 'express';
 import { db, DonationDoc } from '../db';
 import { authenticateToken, AuthRequest } from './auth';
+import { purgeStaleDonations, getStaleAuditLogs } from '../services/scheduler';
 
 export const donationsRouter = Router();
+
+// AUTOMATED SCHEDULER: MANUAL TRIGGER & STATUS
+donationsRouter.post('/purge-stale', async (req: Request, res: Response) => {
+  try {
+    const result = await purgeStaleDonations();
+    return res.json({
+      message: `Automated scheduler check completed. Purged ${result.purgedCount} stale items.`,
+      ...result
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: 'Failed to purge stale donations: ' + err.message });
+  }
+});
+
+// GET STALE AUDIT LOGS
+donationsRouter.get('/stale-audit', (req: Request, res: Response) => {
+  const logs = getStaleAuditLogs();
+  return res.json({ logs });
+});
 
 // LIST ALL DONATIONS
 donationsRouter.get('/', async (req: Request, res: Response) => {

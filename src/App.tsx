@@ -10,6 +10,8 @@ import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { LeafletMap } from './components/LeafletMap';
 import { RoleLoginGateway } from './components/RoleLoginGateway';
+import { ExpressZeroLoginPost } from './components/ExpressZeroLoginPost';
+import { ClusterRouteView } from './components/ClusterRouteView';
 import { SurplusMapRadar } from './components/SurplusMapRadar';
 import { VolunteerLiveTracking } from './components/VolunteerLiveTracking';
 import { DonorPortal } from './components/DonorPortal';
@@ -18,6 +20,7 @@ import { NgoPortal } from './components/NgoPortal';
 import { ProblemsSolutionMatrix } from './components/ProblemsSolutionMatrix';
 import { PrivacySecurityModal } from './components/PrivacySecurityModal';
 import { AuthModal } from './components/AuthModal';
+import { QrCodeModal } from './components/QrCodeModal';
 import { 
   Shield, 
   MapPin, 
@@ -37,6 +40,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(stored);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   // Live state fetched from Express backend & MongoDB persistence layer
   const [donations, setDonations] = useState<any[]>([]);
@@ -104,12 +108,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07170e] text-slate-100 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="min-h-screen bg-black text-white flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Top Banner Bar for User Status */}
-      <div className="bg-[#0b2416] border-b border-emerald-950 px-4 py-2 text-xs flex flex-wrap items-center justify-between gap-2">
+      <div className="bg-zinc-950 border-b border-zinc-800 px-4 py-2 text-xs flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#a3e635] animate-ping" />
-          <span className="text-emerald-300 font-medium">
+          <span className="w-2 h-2 rounded-full bg-[#d4af37] animate-ping" />
+          <span className="text-[#d4af37] font-medium tracking-wide">
             Tamil Nadu Live Redistribution Network Active (Chennai · Coimbatore · Madurai · Trichy)
           </span>
         </div>
@@ -117,13 +121,13 @@ export default function App() {
         <div className="flex items-center gap-3">
           {currentUser ? (
             <div className="flex items-center gap-2">
-              <span className="text-slate-300 flex items-center gap-1">
-                <UserCheck className="w-3.5 h-3.5 text-[#a3e635]" />
+              <span className="text-zinc-300 flex items-center gap-1">
+                <UserCheck className="w-3.5 h-3.5 text-[#d4af37]" />
                 <b>{currentUser.name}</b> ({currentUser.role.toUpperCase()})
               </span>
               <button
                 onClick={handleLogout}
-                className="text-slate-400 hover:text-rose-300 flex items-center gap-1 cursor-pointer"
+                className="text-zinc-400 hover:text-rose-400 flex items-center gap-1 cursor-pointer"
               >
                 <LogOut className="w-3 h-3" />
                 Sign Out / Switch Role
@@ -132,7 +136,7 @@ export default function App() {
           ) : (
             <button
               onClick={() => setCurrentRole('login_gateway')}
-              className="text-[#a3e635] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+              className="text-[#d4af37] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
               Role Gateway / Login
@@ -140,9 +144,18 @@ export default function App() {
           )}
 
           <button
+            onClick={() => setIsQrModalOpen(true)}
+            className="text-white hover:text-[#d4af37] flex items-center gap-1 cursor-pointer border-l border-zinc-800 pl-3 font-medium"
+            title="Generate kitchen fridge QR sticker or pickup pass"
+          >
+            <Sparkles className="w-3 h-3 text-[#d4af37]" />
+            QR Generator
+          </button>
+
+          <button
             onClick={handleResetDemoData}
             title="Reset database to seed state"
-            className="text-slate-400 hover:text-slate-200 flex items-center gap-1 cursor-pointer border-l border-emerald-900 pl-3"
+            className="text-zinc-400 hover:text-zinc-200 flex items-center gap-1 cursor-pointer border-l border-zinc-800 pl-3"
           >
             <RefreshCw className="w-3 h-3" />
             Reset Data
@@ -156,11 +169,13 @@ export default function App() {
         onSelectRole={setCurrentRole}
         onOpenPrivacyModal={() => setIsPrivacyModalOpen(true)}
         onResetData={handleResetDemoData}
+        onOpenQrModal={() => setIsQrModalOpen(true)}
       />
 
       {/* Floating Notification Toast */}
       {notification && (
-        <div className="fixed top-16 right-5 z-50 bg-emerald-950/90 border border-emerald-500/80 text-emerald-200 px-4 py-2.5 rounded-xl shadow-2xl backdrop-blur-md text-xs font-semibold animate-bounce">
+        <div className="fixed top-16 right-5 z-50 bg-black/95 border border-[#d4af37] text-white px-4 py-2.5 rounded-xl shadow-2xl backdrop-blur-md text-xs font-semibold animate-bounce flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#d4af37]" />
           {notification}
         </div>
       )}
@@ -175,7 +190,29 @@ export default function App() {
           />
         )}
 
-        {/* 2. DEDICATED SURPLUS FOOD MAP (GREEN: AVAILABLE vs RED: OCCUPIED) */}
+        {/* 2. ZERO-INSTALL 30-SECOND EXPRESS POST (QR / SMS NO LOGIN) */}
+        {currentRole === 'express_post' && (
+          <ExpressZeroLoginPost
+            onSuccess={() => {
+              refreshData();
+              showToast('Micro-surplus uploaded to local cluster!');
+            }}
+            onViewClusters={() => setCurrentRole('clusters_routing')}
+          />
+        )}
+
+        {/* 3. MULTI-CONTRIBUTOR MICRO-CLUSTERING & VIABILITY ROUTE ENGINE */}
+        {currentRole === 'clusters_routing' && (
+          <ClusterRouteView
+            donations={donations}
+            ngos={ngos}
+            trips={trips}
+            onRefresh={refreshData}
+            onOpenExpressPost={() => setCurrentRole('express_post')}
+          />
+        )}
+
+        {/* 4. DEDICATED SURPLUS FOOD MAP (GREEN: AVAILABLE vs RED: OCCUPIED) */}
         {currentRole === 'surplus_map' && (
           <SurplusMapRadar
             donations={donations}
@@ -282,29 +319,36 @@ export default function App() {
         onClose={() => setIsPrivacyModalOpen(false)}
       />
 
+      {/* QR Code Generator & Scanner Modal */}
+      <QrCodeModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        initialMode="sticker"
+      />
+
       {/* Footer & Compliance Bar */}
-      <footer className="border-t border-emerald-950/80 bg-[#06140c] py-6 px-4 md:px-8 mt-12 text-xs text-slate-400">
+      <footer className="border-t border-zinc-800 bg-black py-6 px-4 md:px-8 mt-12 text-xs text-zinc-400">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-extrabold text-white tracking-wider">FOODPOOL</span>
+            <span className="font-extrabold text-[#d4af37] tracking-wider">FOODPOOL</span>
             <span>·</span>
-            <span>Tamil Nadu Surplus Food Redistribution & Route Pooling</span>
+            <span className="text-zinc-300">Tamil Nadu Surplus Food Redistribution & Route Pooling</span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-400">
-            <span className="flex items-center gap-1 text-[#a3e635] font-mono">
+          <div className="flex flex-wrap items-center gap-4 text-[11px] text-zinc-400">
+            <span className="flex items-center gap-1 text-[#d4af37] font-mono">
               <Shield className="w-3.5 h-3.5" />
               FSSAI & NGO Darpan Verified
             </span>
             <span>·</span>
-            <span className="flex items-center gap-1 text-teal-400 font-mono">
+            <span className="flex items-center gap-1 text-white font-mono">
               <MapPin className="w-3.5 h-3.5" />
               OpenStreetMap Road Corridors
             </span>
             <span>·</span>
             <button
               onClick={() => setIsPrivacyModalOpen(true)}
-              className="text-slate-300 hover:text-white underline cursor-pointer"
+              className="text-zinc-400 hover:text-[#d4af37] underline cursor-pointer"
             >
               48h Retention & Geo-Privacy
             </button>

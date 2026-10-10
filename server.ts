@@ -8,6 +8,7 @@ import { donationsRouter } from './server/routes/donations';
 import { ngosRouter } from './server/routes/ngos';
 import { tripsRouter } from './server/routes/trips';
 import { routingRouter } from './server/routes/routing';
+import { startAutomatedScheduler } from './server/services/scheduler';
 
 dotenv.config();
 
@@ -57,6 +58,7 @@ async function startServer() {
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`[FOODPOOL Backend] Listening on http://0.0.0.0:${PORT}`);
+    startAutomatedScheduler(30000); // Check every 30 seconds
   });
 }
 
