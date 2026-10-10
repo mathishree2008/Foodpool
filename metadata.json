@@ -1,0 +1,7 @@
+{
+  "name": "FOODPOOL - Tamil Nadu Surplus Food Redistribution & Route Pooling",
+  "description": "Intelligent web-based food redistribution platform connecting donors, NGOs, and commuters along compatible Tamil Nadu routes with real-time spoilage tracking, OTP verification, and detour optimization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
