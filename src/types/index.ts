@@ -1,4 +1,14 @@
-export type UserRole = 'overview' | 'donor' | 'transporter' | 'ngo' | 'problems_matrix';
+export type UserRole = 
+  | 'overview' 
+  | 'express_post'
+  | 'clusters_routing'
+  | 'login_gateway' 
+  | 'donor' 
+  | 'transporter' 
+  | 'ngo' 
+  | 'surplus_map' 
+  | 'volunteer_tracking' 
+  | 'problems_matrix';
 
 export type TNRegion = 'Chennai' | 'Coimbatore' | 'Madurai' | 'Tiruchirappalli' | 'Salem' | 'Tirunelveli';
 
@@ -182,3 +192,35 @@ export interface ProblemSolutionItem {
   badge: string;
   color: string;
 }
+
+export type ClusterStatus = 'CLUSTERING' | 'VIABLE_READY' | 'DISPATCHED' | 'DELIVERED';
+
+export interface ClusterItem {
+  donation: FoodDonation;
+  isIncluded: boolean;
+  exclusionReason?: string;
+  timeToReceiverMinutes: number;
+  safeWindowRemainingMinutes: number;
+  pickupSequence: number;
+}
+
+export interface FoodCluster {
+  id: string;
+  clusterZoneName: string;
+  city: TNRegion;
+  items: ClusterItem[];
+  viableMealThreshold: number; // e.g., 20 meals
+  totalClusteredMeals: number;
+  totalValidMeals: number;
+  totalValidKg: number;
+  isViable: boolean; // reaches >= viableMealThreshold with valid safe windows
+  status: ClusterStatus;
+  targetNgo: RecipientNGO;
+  assignedTransporter?: TransporterTrip;
+  directIndividualKm: number; // Sum of individual separate trips if collected one-by-one
+  clusteredMultiStopKm: number; // Combined loop distance
+  fuelSavedPercent: number; // e.g. 58% fuel savings justifying the trip
+  totalTripMinutes: number;
+  createdAt: string;
+}
+

@@ -26,12 +26,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted, onExplor
         {/* Subtle radial ambient glows */}
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-500/10 rounded-full blur-3xl" />
         
-        {/* Left Side: Grocery bag with fresh greens, lettuce, celery, cauliflower */}
-        <div className="absolute left-[-20px] sm:left-[-10px] md:left-0 top-12 bottom-12 w-[180px] sm:w-[260px] md:w-[320px] opacity-40 md:opacity-75 transition-opacity">
+        {/* Left Side: Real food delivery volunteer courier with thermal food bag */}
+        <div className="absolute left-[-20px] sm:left-[-10px] md:left-0 top-6 bottom-6 w-[200px] sm:w-[280px] md:w-[360px] opacity-45 md:opacity-80 transition-opacity">
           <img
-            src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80"
-            alt="Fresh produce and groceries in kraft paper bag"
-            className="w-full h-full object-cover object-left mask-radial mix-blend-luminosity filter contrast-125 brightness-95"
+            src="https://images.unsplash.com/photo-1526367790999-0150786686a2?auto=format&fit=crop&w=1000&q=80"
+            alt="Food delivery courier carrying warm packaged meals in transit"
+            className="w-full h-full object-cover object-center mask-radial mix-blend-luminosity filter contrast-125 brightness-95"
             style={{
               maskImage: 'linear-gradient(to right, black 50%, transparent 100%)',
               WebkitMaskImage: 'linear-gradient(to right, black 50%, transparent 100%)'
@@ -39,12 +39,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted, onExplor
           />
         </div>
 
-        {/* Right Side: Grocery bag overflowing with vibrant bell peppers, tomatoes, eggplants */}
-        <div className="absolute right-[-20px] sm:right-[-10px] md:right-0 top-12 bottom-12 w-[180px] sm:w-[260px] md:w-[340px] opacity-40 md:opacity-75 transition-opacity">
+        {/* Right Side: Volunteers packaging and distributing hot cooked meals */}
+        <div className="absolute right-[-20px] sm:right-[-10px] md:right-0 top-6 bottom-6 w-[200px] sm:w-[280px] md:w-[380px] opacity-45 md:opacity-80 transition-opacity">
           <img
-            src="https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=800&q=80"
-            alt="Assorted fresh red tomatoes, peppers, and vegetables"
-            className="w-full h-full object-cover object-right mask-radial mix-blend-luminosity filter contrast-125 brightness-95"
+            src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1000&q=80"
+            alt="Community volunteers packing hot meal containers for redistribution"
+            className="w-full h-full object-cover object-center mask-radial mix-blend-luminosity filter contrast-125 brightness-95"
             style={{
               maskImage: 'linear-gradient(to left, black 50%, transparent 100%)',
               WebkitMaskImage: 'linear-gradient(to left, black 50%, transparent 100%)'

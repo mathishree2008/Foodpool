@@ -9,6 +9,9 @@ import { api, AuthUser, getStoredUser } from './services/api';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { LeafletMap } from './components/LeafletMap';
+import { RoleLoginGateway } from './components/RoleLoginGateway';
+import { SurplusMapRadar } from './components/SurplusMapRadar';
+import { VolunteerLiveTracking } from './components/VolunteerLiveTracking';
 import { DonorPortal } from './components/DonorPortal';
 import { TransporterPortal } from './components/TransporterPortal';
 import { NgoPortal } from './components/NgoPortal';
@@ -28,8 +31,10 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const [currentRole, setCurrentRole] = useState<UserRole>('overview');
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(getStoredUser());
+  const stored = getStoredUser();
+  // Initially show login gateway if user not logged in, otherwise default to overview
+  const [currentRole, setCurrentRole] = useState<UserRole>(stored ? 'overview' : 'login_gateway');
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(stored);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
@@ -61,7 +66,6 @@ export default function App() {
 
   useEffect(() => {
     refreshData();
-    // Refresh periodically every 25 seconds
     const interval = setInterval(refreshData, 25000);
     return () => clearInterval(interval);
   }, []);
@@ -74,7 +78,8 @@ export default function App() {
   const handleLogout = () => {
     api.auth.logout();
     setCurrentUser(null);
-    showToast('Signed out successfully.');
+    setCurrentRole('login_gateway');
+    showToast('Signed out successfully. Role identification reset.');
   };
 
   const handleResetDemoData = async () => {
@@ -85,6 +90,17 @@ export default function App() {
     } catch (err: any) {
       alert('Reset failed: ' + err.message);
     }
+  };
+
+  const handleLoginSuccess = (user: AuthUser) => {
+    setCurrentUser(user);
+    showToast(`Welcome back, ${user.name}! Switched to ${user.role.toUpperCase()} portal.`);
+    // Route directly to their role-specific dashboard
+    if (user.role === 'donor') setCurrentRole('donor');
+    else if (user.role === 'ngo') setCurrentRole('ngo');
+    else if (user.role === 'transporter') setCurrentRole('transporter');
+    else setCurrentRole('overview');
+    refreshData();
   };
 
   return (
@@ -110,16 +126,16 @@ export default function App() {
                 className="text-slate-400 hover:text-rose-300 flex items-center gap-1 cursor-pointer"
               >
                 <LogOut className="w-3 h-3" />
-                Sign Out
+                Sign Out / Switch Role
               </button>
             </div>
           ) : (
             <button
-              onClick={() => setIsAuthModalOpen(true)}
+              onClick={() => setCurrentRole('login_gateway')}
               className="text-[#a3e635] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              Sign In / Register Role
+              Role Gateway / Login
             </button>
           )}
 
@@ -151,12 +167,49 @@ export default function App() {
 
       {/* Main Application Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8 space-y-8">
-        {/* Hero Section (Modeled directly after uploaded design screenshot) */}
+        {/* 1. INITIAL ROLE IDENTIFICATION & LOGIN GATEWAY PAGE */}
+        {currentRole === 'login_gateway' && (
+          <RoleLoginGateway
+            onSuccess={handleLoginSuccess}
+            onExploreGuest={() => setCurrentRole('overview')}
+          />
+        )}
+
+        {/* 2. DEDICATED SURPLUS FOOD MAP (GREEN: AVAILABLE vs RED: OCCUPIED) */}
+        {currentRole === 'surplus_map' && (
+          <SurplusMapRadar
+            donations={donations}
+            ngos={ngos}
+            trips={trips}
+            onReserveDonation={async (donationId) => {
+              try {
+                const targetNgo = ngos[0]?.id;
+                await api.ngos.acceptDonation(donationId, targetNgo);
+                await refreshData();
+                showToast('Surplus reserved! Marker status changed to RED (Occupied).');
+              } catch (err: any) {
+                alert('Reservation error: ' + err.message);
+              }
+            }}
+          />
+        )}
+
+        {/* 3. DEDICATED LIVE VOLUNTEER ORDER TRACKING PAGE */}
+        {currentRole === 'volunteer_tracking' && (
+          <VolunteerLiveTracking
+            trips={trips}
+            donations={donations}
+            ngos={ngos}
+            onRefresh={refreshData}
+          />
+        )}
+
+        {/* 4. OVERVIEW / HERO & LEAFLET ROAD ROUTING VIEW */}
         {currentRole === 'overview' && (
           <>
             <HeroSection
-              onGetStarted={() => setIsAuthModalOpen(true)}
-              onExploreDashboard={() => setCurrentRole('transporter')}
+              onGetStarted={() => setCurrentRole('login_gateway')}
+              onExploreDashboard={() => setCurrentRole('volunteer_tracking')}
             />
 
             {/* Real Leaflet & OpenStreetMap Road Routing Integration */}
@@ -179,7 +232,7 @@ export default function App() {
           </>
         )}
 
-        {/* Distinct Donor Dashboard Layout */}
+        {/* 5. DISTINCT DONOR DASHBOARD LAYOUT (RESTAURANTS, HOSTEL MESSES, BAKERIES) */}
         {currentRole === 'donor' && (
           <DonorPortal
             donations={donations}
@@ -187,7 +240,7 @@ export default function App() {
           />
         )}
 
-        {/* Distinct Transporter Dashboard Layout */}
+        {/* 6. DISTINCT VOLUNTEER / TRANSPORTER DASHBOARD LAYOUT */}
         {currentRole === 'transporter' && (
           <TransporterPortal
             trips={trips}
@@ -197,7 +250,7 @@ export default function App() {
           />
         )}
 
-        {/* Distinct NGO Dashboard Layout */}
+        {/* 7. DISTINCT RECEIVER NGO DASHBOARD LAYOUT */}
         {currentRole === 'ngo' && (
           <NgoPortal
             ngos={ngos}
@@ -207,7 +260,7 @@ export default function App() {
           />
         )}
 
-        {/* 10 Problems and Solutions Technical Verification Matrix */}
+        {/* 8. 10 PROBLEMS & SOLUTIONS TECHNICAL VERIFICATION MATRIX */}
         {currentRole === 'problems_matrix' && (
           <ProblemsSolutionMatrix
             onNavigateTab={(tab) => setCurrentRole(tab)}
@@ -216,15 +269,11 @@ export default function App() {
         )}
       </main>
 
-      {/* Auth Modal */}
+      {/* Global Auth Modal for instant access */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={(user) => {
-          setCurrentUser(user);
-          showToast(`Welcome back, ${user.name}!`);
-          refreshData();
-        }}
+        onSuccess={handleLoginSuccess}
       />
 
       {/* Privacy and Ephemeral Retention Modal */}

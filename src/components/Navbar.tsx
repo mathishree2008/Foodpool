@@ -57,7 +57,34 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Radio className="w-3.5 h-3.5" />
-            <span>Live Radar</span>
+            <span>Home</span>
+          </button>
+
+          <button
+            onClick={() => onSelectRole('surplus_map')}
+            className={`px-3 py-1.5 rounded-lg transition-all font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              currentRole === 'surplus_map'
+                ? 'bg-emerald-950 text-emerald-300 shadow-sm border border-emerald-700 font-semibold'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+              <span className="w-2 h-2 rounded-full bg-rose-400 inline-block" />
+            </span>
+            <span>Surplus Food Map</span>
+          </button>
+
+          <button
+            onClick={() => onSelectRole('volunteer_tracking')}
+            className={`px-3 py-1.5 rounded-lg transition-all font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              currentRole === 'volunteer_tracking'
+                ? 'bg-blue-950 text-blue-300 shadow-sm border border-blue-700 font-semibold'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Car className="w-3.5 h-3.5 text-blue-400" />
+            <span>Live Volunteer Tracking</span>
           </button>
 
           <button
@@ -73,6 +100,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
+            onClick={() => onSelectRole('ngo')}
+            className={`px-3 py-1.5 rounded-lg transition-all font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              currentRole === 'ngo'
+                ? 'bg-slate-800 text-cyan-300 shadow-sm border border-slate-700/80 font-semibold'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <HeartHandshake className="w-3.5 h-3.5" />
+            <span>Receiver NGO</span>
+          </button>
+
+          <button
             onClick={() => onSelectRole('transporter')}
             className={`px-3 py-1.5 rounded-lg transition-all font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               currentRole === 'transporter'
@@ -81,19 +120,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Car className="w-3.5 h-3.5" />
-            <span>Transporter Pool</span>
+            <span>Volunteer Hub</span>
           </button>
 
           <button
-            onClick={() => onSelectRole('ngo')}
+            onClick={() => onSelectRole('login_gateway')}
             className={`px-3 py-1.5 rounded-lg transition-all font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-              currentRole === 'ngo'
-                ? 'bg-slate-800 text-teal-300 shadow-sm border border-slate-700/80 font-semibold'
-                : 'text-slate-400 hover:text-slate-200'
+              currentRole === 'login_gateway'
+                ? 'bg-[#a3e635] text-slate-950 font-bold shadow-sm'
+                : 'text-[#a3e635] hover:bg-emerald-950/40'
             }`}
           >
-            <HeartHandshake className="w-3.5 h-3.5" />
-            <span>Recipient NGO</span>
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Identify Role / Login</span>
           </button>
 
           <button
