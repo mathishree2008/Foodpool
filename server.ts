@@ -9,6 +9,7 @@ import { ngosRouter } from './server/routes/ngos';
 import { tripsRouter } from './server/routes/trips';
 import { routingRouter } from './server/routes/routing';
 import { startAutomatedScheduler } from './server/services/scheduler';
+import { expirationValidatorMiddleware } from './server/services/expirationMiddleware';
 
 dotenv.config();
 
@@ -21,6 +22,9 @@ async function startServer() {
 
   // JSON middleware
   app.use(express.json());
+
+  // Safe-consumption window validation middleware
+  app.use('/api', expirationValidatorMiddleware);
 
   // Mount API routers
   app.use('/api/auth', authRouter);

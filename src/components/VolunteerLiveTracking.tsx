@@ -235,34 +235,61 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Real-time Volunteer Notification: Expired / Stale Listing Alert */}
+      {activeTrip?.activeAlert && (
+        <div className="bg-red-950/80 border-2 border-red-500 rounded-3xl p-5 shadow-2xl animate-pulse">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 bg-red-600 text-white rounded-2xl flex-shrink-0">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-500 text-black uppercase">
+                  Automated Volunteer Alert
+                </span>
+                <span className="text-xs text-red-300 font-mono">
+                  {new Date(activeTrip.activeAlert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </span>
+              </div>
+              <h3 className="text-sm md:text-base font-bold text-white">
+                {activeTrip.activeAlert.message}
+              </h3>
+              <p className="text-xs text-red-200">
+                Backend cron calculation confirmed the duration between preparation and current time exceeded safe consumption limits. This pickup was detached to avoid distributing compromised food.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header Bar */}
-      <div className="bg-gradient-to-r from-blue-950/60 via-slate-900 to-slate-900 border border-blue-900/40 rounded-3xl p-5 md:p-6 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-zinc-950 border border-[#d4af37]/40 rounded-3xl p-5 md:p-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-blue-400 animate-ping" />
-            <h2 className="text-lg md:text-xl font-bold text-slate-100 flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-[#d4af37] animate-ping" />
+            <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
               <span>Volunteer Live Order Tracking Terminal</span>
             </h2>
           </div>
-          <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+          <p className="text-xs text-zinc-400 mt-1 max-w-2xl leading-relaxed">
             Monitor the volunteer from the moment the order is accepted through pickup and until final handover at the shelter.
           </p>
         </div>
 
         {/* Order Selector */}
         <div className="flex items-center gap-2">
-          <label className="text-xs text-slate-400 font-medium">Select Active Order:</label>
+          <label className="text-xs text-zinc-400 font-medium">Select Active Order:</label>
           <select
             value={selectedTripId}
             onChange={(e) => {
               setSelectedTripId(e.target.value);
               setOtpMessage(null);
             }}
-            className="bg-slate-950 border border-slate-800 text-slate-200 px-3 py-2 rounded-xl text-xs focus:outline-none focus:border-blue-500"
+            className="bg-black border border-zinc-700 text-zinc-200 px-3 py-2 rounded-xl text-xs focus:outline-none focus:border-[#d4af37]"
           >
             {trips.map((t) => (
               <option key={t.id} value={t.id}>
-                Volunteer: {t.transporterName} ({t.origin?.name} → {t.destination?.name})
+                Volunteer: {t.transporterName} ({t.origin?.name || (t as any).originCity || 'Route'} → {t.destination?.name || (t as any).destinationCity || 'Destination'})
               </option>
             ))}
           </select>
@@ -270,8 +297,8 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
       </div>
 
       {/* 4-Stage Live Progress Stepper (From Beginning to Delivery) */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl backdrop-blur-md">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-4">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 shadow-xl">
+        <span className="text-xs font-bold uppercase tracking-wider text-[#d4af37] block mb-4">
           Live Delivery Progression Stages:
         </span>
 
@@ -280,20 +307,20 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
           <div
             className={`p-4 rounded-2xl border transition-all ${
               currentStage >= 1
-                ? 'bg-emerald-950/40 border-emerald-500/80 shadow-lg shadow-emerald-500/5'
-                : 'bg-slate-950/80 border-slate-800'
+                ? 'bg-zinc-900 border-[#d4af37] shadow-lg shadow-[#d4af37]/5'
+                : 'bg-black border-zinc-800'
             }`}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center">
+              <span className="w-6 h-6 rounded-full bg-[#d4af37] text-black font-bold text-xs flex items-center justify-center">
                 1
               </span>
-              <span className="text-[10px] font-mono text-emerald-400 font-semibold">
+              <span className="text-[10px] font-mono text-[#d4af37] font-semibold">
                 {currentStage >= 1 ? '✓ COMPLETED' : 'PENDING'}
               </span>
             </div>
-            <h4 className="font-bold text-xs text-slate-100">Order Accepted</h4>
-            <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
+            <h4 className="font-bold text-xs text-white">Order Accepted</h4>
+            <p className="text-[11px] text-zinc-400 mt-0.5 leading-snug">
               Volunteer routed along corridor.
             </p>
           </div>
@@ -302,24 +329,24 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
           <div
             className={`p-4 rounded-2xl border transition-all ${
               currentStage >= 2
-                ? 'bg-emerald-950/40 border-emerald-500/80 shadow-lg shadow-emerald-500/5'
+                ? 'bg-zinc-900 border-[#d4af37] shadow-lg shadow-[#d4af37]/5'
                 : currentStage === 1
-                ? 'bg-blue-950/30 border-blue-500/60 ring-1 ring-blue-500/30'
-                : 'bg-slate-950/80 border-slate-800'
+                ? 'bg-zinc-900/60 border-zinc-700 ring-1 ring-[#d4af37]/30'
+                : 'bg-black border-zinc-800'
             }`}
           >
             <div className="flex items-center justify-between mb-2">
               <span className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center ${
-                currentStage >= 2 ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-300'
+                currentStage >= 2 ? 'bg-[#d4af37] text-black' : 'bg-zinc-800 text-zinc-300'
               }`}>
                 2
               </span>
-              <span className="text-[10px] font-mono text-amber-400 font-semibold">
+              <span className="text-[10px] font-mono text-[#d4af37] font-semibold">
                 {currentStage >= 2 ? '✓ VERIFIED' : 'AT DONOR'}
               </span>
             </div>
-            <h4 className="font-bold text-xs text-slate-100">Donor Pickup & OTP</h4>
-            <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
+            <h4 className="font-bold text-xs text-white">Donor Pickup & OTP</h4>
+            <p className="text-[11px] text-zinc-400 mt-0.5 leading-snug">
               Arrived at mess/restaurant; Pickup OTP checked.
             </p>
           </div>
@@ -328,24 +355,24 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
           <div
             className={`p-4 rounded-2xl border transition-all ${
               currentStage >= 3
-                ? 'bg-emerald-950/40 border-emerald-500/80 shadow-lg shadow-emerald-500/5'
+                ? 'bg-zinc-900 border-[#d4af37] shadow-lg shadow-[#d4af37]/5'
                 : currentStage === 2
-                ? 'bg-blue-950/30 border-blue-500/60 ring-1 ring-blue-500/30'
-                : 'bg-slate-950/80 border-slate-800'
+                ? 'bg-zinc-900/60 border-zinc-700 ring-1 ring-[#d4af37]/30'
+                : 'bg-black border-zinc-800'
             }`}
           >
             <div className="flex items-center justify-between mb-2">
               <span className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center ${
-                currentStage >= 3 ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-300'
+                currentStage >= 3 ? 'bg-[#d4af37] text-black' : 'bg-zinc-800 text-zinc-300'
               }`}>
                 3
               </span>
-              <span className="text-[10px] font-mono text-cyan-400 font-semibold">
+              <span className="text-[10px] font-mono text-zinc-300 font-semibold">
                 {currentStage >= 3 ? '✓ EN ROUTE' : 'IN TRANSIT'}
               </span>
             </div>
-            <h4 className="font-bold text-xs text-slate-100">In Transit to Shelter</h4>
-            <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
+            <h4 className="font-bold text-xs text-white">In Transit to Shelter</h4>
+            <p className="text-[11px] text-zinc-400 mt-0.5 leading-snug">
               Food held in thermal containers; Live GPS beacon.
             </p>
           </div>
@@ -354,22 +381,22 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
           <div
             className={`p-4 rounded-2xl border transition-all ${
               currentStage >= 4
-                ? 'bg-emerald-950/60 border-emerald-400 shadow-xl shadow-emerald-500/10'
-                : 'bg-slate-950/80 border-slate-800'
+                ? 'bg-zinc-900 border-[#d4af37] shadow-xl shadow-[#d4af37]/10'
+                : 'bg-black border-zinc-800'
             }`}
           >
             <div className="flex items-center justify-between mb-2">
               <span className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center ${
-                currentStage >= 4 ? 'bg-emerald-400 text-slate-950' : 'bg-slate-800 text-slate-300'
+                currentStage >= 4 ? 'bg-[#d4af37] text-black' : 'bg-zinc-800 text-zinc-300'
               }`}>
                 4
               </span>
-              <span className="text-[10px] font-mono text-emerald-300 font-semibold">
+              <span className="text-[10px] font-mono text-[#d4af37] font-semibold">
                 {currentStage >= 4 ? '✓ DELIVERED' : 'FINAL DROP'}
               </span>
             </div>
-            <h4 className="font-bold text-xs text-slate-100">Shelter Delivery & OTP</h4>
-            <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
+            <h4 className="font-bold text-xs text-white">Shelter Delivery & OTP</h4>
+            <p className="text-[11px] text-zinc-400 mt-0.5 leading-snug">
               Handover verified via NGO OTP; meals fed to needy.
             </p>
           </div>
@@ -379,27 +406,27 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
       {/* Main Map & Detailed Information Panel */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Leaflet Live Map Tracking Element */}
-        <div className="lg:col-span-7 bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden shadow-2xl relative">
+        <div className="lg:col-span-7 bg-black rounded-3xl border border-zinc-800 overflow-hidden shadow-2xl relative">
           <div ref={mapContainerRef} className="w-full h-[480px] z-10" />
 
           {/* Real-time telemetry banner overlay */}
-          <div className="absolute top-3 left-3 z-20 bg-slate-900/90 backdrop-blur-md border border-slate-700 px-3.5 py-2 rounded-2xl text-xs text-slate-200 shadow-xl flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+          <div className="absolute top-3 left-3 z-20 bg-black/90 backdrop-blur-md border border-[#d4af37]/50 px-3.5 py-2 rounded-2xl text-xs text-zinc-200 shadow-xl flex items-center gap-3">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37] animate-ping" />
             <div>
-              <span className="font-bold text-slate-100 block">
+              <span className="font-bold text-white block">
                 Tracking Volunteer: {activeTrip?.transporterName}
               </span>
-              <span className="text-[10px] text-slate-400">
-                Vehicle: {activeTrip?.vehicleNumber} ({activeTrip?.vehicleType.split(' ')[0]})
+              <span className="text-[10px] text-zinc-400">
+                Vehicle: {activeTrip?.vehicleNumber} ({activeTrip?.vehicleType?.split(' ')[0] || 'Vehicle'})
               </span>
             </div>
           </div>
 
           {/* Telemetry bottom bar */}
-          <div className="absolute bottom-3 left-3 right-3 z-20 bg-slate-950/90 backdrop-blur-md border border-slate-800 p-3 rounded-2xl flex items-center justify-between text-xs text-slate-300">
+          <div className="absolute bottom-3 left-3 right-3 z-20 bg-black/90 backdrop-blur-md border border-zinc-800 p-3 rounded-2xl flex items-center justify-between text-xs text-zinc-300">
             <div>
-              <span className="text-[10px] text-slate-400 uppercase block">Current Stage:</span>
-              <span className="font-mono font-bold text-emerald-400">
+              <span className="text-[10px] text-zinc-400 uppercase block">Current Stage:</span>
+              <span className="font-mono font-bold text-[#d4af37]">
                 {activeTrip?.status === 'COMPLETED'
                   ? 'DELIVERED AT SHELTER'
                   : activeTrip?.status === 'PICKED_UP'
@@ -408,38 +435,38 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
               </span>
             </div>
             <div className="text-right">
-              <span className="text-[10px] text-slate-400 uppercase block">Added Detour:</span>
-              <span className="font-mono font-bold text-amber-400">+{activeTrip?.detourDistanceKm} km (~{activeTrip?.detourTimeMinutes} min)</span>
+              <span className="text-[10px] text-zinc-400 uppercase block">Added Detour:</span>
+              <span className="font-mono font-bold text-zinc-200">+{activeTrip?.detourDistanceKm || 0} km (~{activeTrip?.detourTimeMinutes || 0} min)</span>
             </div>
           </div>
         </div>
 
         {/* Right Column: Detailed Food Supply, Prep Time, Reach Time, and Needy Count */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="bg-slate-900/95 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl backdrop-blur-md">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Package className="w-4 h-4 text-emerald-400" />
+          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#d4af37] flex items-center gap-1.5">
+                <Package className="w-4 h-4 text-[#d4af37]" />
                 Live Order & Food Specification Details
               </span>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 border border-emerald-800 px-2 py-0.5 rounded">
-                ORDER #TN-{activeTrip?.id.slice(-4)}
+              <span className="text-[10px] font-mono text-[#d4af37] bg-black border border-[#d4af37]/40 px-2 py-0.5 rounded">
+                ORDER #TN-{activeTrip?.id?.slice(-4) || 'LIVE'}
               </span>
             </div>
 
             {/* Food Supply Spec Cards */}
             <div className="space-y-3 text-xs">
               {/* 1. What food is supplied */}
-              <div className="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800 space-y-1">
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+              <div className="bg-black p-3.5 rounded-2xl border border-zinc-800 space-y-1">
+                <span className="text-[10px] text-zinc-400 uppercase tracking-wider block font-semibold">
                   What Food is Supplied:
                 </span>
-                <p className="font-bold text-slate-100 text-sm">
-                  {assignedDonation?.items[0]?.name || 'Cooked Sambar Rice & Poriyal'}
+                <p className="font-bold text-white text-sm">
+                  {assignedDonation?.items?.[0]?.name || (assignedDonation as any)?.foodName || 'South Indian Meals & Sambar Rice'}
                 </p>
-                <div className="flex items-center gap-2 pt-1 text-[11px] text-slate-400">
-                  <span className="bg-slate-800 px-2 py-0.5 rounded text-emerald-300 font-semibold text-[10px]">
-                    {assignedDonation?.items[0]?.dietary || 'Pure Veg'}
+                <div className="flex items-center gap-2 pt-1 text-[11px] text-zinc-400">
+                  <span className="bg-zinc-800 px-2 py-0.5 rounded text-[#d4af37] font-semibold text-[10px]">
+                    {assignedDonation?.items?.[0]?.dietary || (assignedDonation as any)?.dietary || 'Pure Veg'}
                   </span>
                   <span>·</span>
                   <span>{assignedDonation?.storageRequirement || 'Hot (>60°C)'}</span>
@@ -448,60 +475,60 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
 
               {/* 2. No. of food supplements / portions */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-950/80 p-3 rounded-2xl border border-slate-800">
-                  <span className="text-[10px] text-slate-400 uppercase block font-semibold">
+                <div className="bg-black p-3 rounded-2xl border border-zinc-800">
+                  <span className="text-[10px] text-zinc-400 uppercase block font-semibold">
                     Food Supplement Servings:
                   </span>
-                  <span className="font-mono text-xl font-black text-emerald-400 block mt-1">
-                    {assignedDonation?.totalServings || 45} Meals
+                  <span className="font-mono text-xl font-black text-[#d4af37] block mt-1">
+                    {assignedDonation?.totalServings || (assignedDonation as any)?.servings || 45} Meals
                   </span>
                 </div>
-                <div className="bg-slate-950/80 p-3 rounded-2xl border border-slate-800">
-                  <span className="text-[10px] text-slate-400 uppercase block font-semibold">
+                <div className="bg-black p-3 rounded-2xl border border-zinc-800">
+                  <span className="text-[10px] text-zinc-400 uppercase block font-semibold">
                     Net Package Weight:
                   </span>
-                  <span className="font-mono text-xl font-black text-amber-400 block mt-1">
-                    {assignedDonation?.totalWeightKg || 16} Kg
+                  <span className="font-mono text-xl font-black text-white block mt-1">
+                    {assignedDonation?.totalWeightKg || (assignedDonation as any)?.weightKg || 16} Kg
                   </span>
                 </div>
               </div>
 
               {/* 3. When it is prepared & When it should be reached */}
-              <div className="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800 space-y-2">
+              <div className="bg-black p-3.5 rounded-2xl border border-zinc-800 space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-400 flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-blue-400" /> When Prepared:
+                  <span className="text-zinc-400 flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-[#d4af37]" /> When Prepared:
                   </span>
-                  <span className="font-mono text-slate-200 font-semibold">
-                    {assignedDonation ? new Date(assignedDonation.preparationTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '12:30 PM'}
+                  <span className="font-mono text-white font-semibold">
+                    {assignedDonation?.preparationTime ? new Date(assignedDonation.preparationTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '12:30 PM'}
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center pt-1.5 border-t border-slate-800/80">
-                  <span className="text-slate-400 flex items-center gap-1.5">
-                    <AlertTriangle className="w-3.5 h-3.5 text-rose-400" /> When Should Reach (Safe Deadline):
+                <div className="flex justify-between items-center pt-1.5 border-t border-zinc-800">
+                  <span className="text-zinc-400 flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-rose-400" /> When Should Reach (Safe Window):
                   </span>
                   <span className="font-mono text-rose-400 font-bold">
-                    {assignedDonation ? new Date(assignedDonation.safeConsumptionDeadline).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '04:30 PM'}
+                    {assignedDonation?.safeConsumptionDeadline ? new Date(assignedDonation.safeConsumptionDeadline).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '04:30 PM'}
                   </span>
                 </div>
               </div>
 
               {/* 4. How many needy people need the food */}
-              <div className="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800 space-y-1.5">
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold flex items-center gap-1">
-                  <Users className="w-3.5 h-3.5 text-cyan-400" /> Needy People Demand Count:
+              <div className="bg-black p-3.5 rounded-2xl border border-zinc-800 space-y-1.5">
+                <span className="text-[10px] text-zinc-400 uppercase tracking-wider block font-semibold flex items-center gap-1">
+                  <Users className="w-3.5 h-3.5 text-[#d4af37]" /> Needy People Demand Count:
                 </span>
-                <p className="font-bold text-cyan-300">
+                <p className="font-bold text-white">
                   {assignedNgo?.name || 'Udhavum Karangal Community Shelter'}
                 </p>
-                <div className="flex items-center justify-between text-[11px] text-slate-300 pt-0.5">
+                <div className="flex items-center justify-between text-[11px] text-zinc-300 pt-0.5">
                   <span>Shelter Beneficiary Count:</span>
-                  <span className="font-mono font-bold text-slate-100">
+                  <span className="font-mono font-bold text-white">
                     {assignedNgo?.beneficiaryCount || 75} Residents
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-[11px] text-amber-300 font-semibold">
+                <div className="flex items-center justify-between text-[11px] text-[#d4af37] font-semibold">
                   <span>Urgent Meals Needed Tonight:</span>
                   <span className="font-mono">
                     {assignedNgo?.urgentMealDemand || 60} Portions
@@ -510,40 +537,39 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
               </div>
 
               {/* 5. Volunteer Contact Card */}
-              <div className="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
+              <div className="bg-black p-3.5 rounded-2xl border border-zinc-800 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase block font-semibold">
+                  <span className="text-[10px] text-zinc-400 uppercase block font-semibold">
                     Volunteer in Transit:
                   </span>
-                  <span className="font-bold text-slate-200 block text-xs mt-0.5">
+                  <span className="font-bold text-white block text-xs mt-0.5">
                     {activeTrip?.transporterName}
                   </span>
-                  <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
-                    <Phone className="w-3 h-3 text-emerald-400" />
+                  <span className="text-[11px] text-zinc-400 flex items-center gap-1 mt-0.5">
+                    <Phone className="w-3 h-3 text-[#d4af37]" />
                     {activeTrip?.phone}
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] text-slate-400 block">Fuel Grant:</span>
-                  <span className="font-mono font-bold text-amber-400">
-                    ₹{activeTrip?.fuelReimbursementEarned}
+                  <span className="text-[10px] text-zinc-400 block">Fuel Grant:</span>
+                  <span className="font-mono font-bold text-[#d4af37]">
+                    ₹{activeTrip?.fuelReimbursementEarned || 0}
                   </span>
                 </div>
               </div>
             </div>
-
             {/* OTP Handover Verification Controls */}
             {activeTrip && (
-              <div className="pt-2 border-t border-slate-800 space-y-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
+              <div className="pt-2 border-t border-zinc-800 space-y-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#d4af37] block">
                   Delivery Handover Verification:
                 </span>
 
                 {/* Pickup OTP Input if stage is before pickup */}
                 {activeTrip.status !== 'PICKED_UP' && activeTrip.status !== 'COMPLETED' && (
-                  <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2 text-xs">
-                    <span className="font-semibold text-amber-400 block">
-                      1. Verify Donor Pickup (Code: {assignedDonation?.pickupOtp || '482910'})
+                  <div className="bg-black p-3 rounded-2xl border border-zinc-800 space-y-2 text-xs">
+                    <span className="font-semibold text-[#d4af37] block">
+                      1. Verify Donor Pickup (Code: {assignedDonation?.pickupOtp || (assignedDonation as any)?.pickupOtp || '482910'})
                     </span>
                     <div className="flex items-center gap-2">
                       <input
@@ -552,11 +578,11 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
                         placeholder="Enter 6-digit Donor OTP"
                         value={pickupOtpInput}
                         onChange={(e) => setPickupOtpInput(e.target.value)}
-                        className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 font-mono tracking-widest flex-1 focus:outline-none focus:border-amber-500"
+                        className="bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono tracking-widest flex-1 focus:outline-none focus:border-[#d4af37]"
                       />
                       <button
                         onClick={handleVerifyPickup}
-                        className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs cursor-pointer"
+                        className="px-3 py-1.5 bg-[#d4af37] hover:bg-[#c29d2b] text-black font-bold rounded-xl text-xs cursor-pointer"
                       >
                         Verify Pickup
                       </button>
@@ -566,9 +592,9 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
 
                 {/* Delivery OTP Input if picked up */}
                 {activeTrip.status === 'PICKED_UP' && (
-                  <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2 text-xs">
-                    <span className="font-semibold text-cyan-400 block">
-                      2. Verify Shelter Delivery (NGO Code: {assignedDonation?.deliveryOtp || '716394'})
+                  <div className="bg-black p-3 rounded-2xl border border-zinc-800 space-y-2 text-xs">
+                    <span className="font-semibold text-white block">
+                      2. Verify Shelter Delivery (NGO Code: {assignedDonation?.deliveryOtp || (assignedDonation as any)?.deliveryOtp || '716394'})
                     </span>
                     <div className="flex items-center gap-2">
                       <input
@@ -577,11 +603,11 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
                         placeholder="Enter 6-digit NGO OTP"
                         value={deliveryOtpInput}
                         onChange={(e) => setDeliveryOtpInput(e.target.value)}
-                        className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 font-mono tracking-widest flex-1 focus:outline-none focus:border-cyan-500"
+                        className="bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono tracking-widest flex-1 focus:outline-none focus:border-[#d4af37]"
                       />
                       <button
                         onClick={handleVerifyDelivery}
-                        className="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-xs cursor-pointer"
+                        className="px-3 py-1.5 bg-[#d4af37] hover:bg-[#c29d2b] text-black font-bold rounded-xl text-xs cursor-pointer"
                       >
                         Confirm Delivery
                       </button>
@@ -591,7 +617,7 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
 
                 {/* Completed Message */}
                 {activeTrip.status === 'COMPLETED' && (
-                  <div className="p-3 bg-emerald-950/60 border border-emerald-800 rounded-2xl text-xs text-emerald-300 font-medium text-center">
+                  <div className="p-3 bg-zinc-900 border border-[#d4af37] rounded-2xl text-xs text-[#d4af37] font-medium text-center">
                     ✓ Delivery successfully completed! All portions reached the shelter on time. Live GPS tracking has ended.
                   </div>
                 )}
@@ -600,8 +626,8 @@ export const VolunteerLiveTracking: React.FC<VolunteerLiveTrackingProps> = ({
                   <div
                     className={`p-2.5 rounded-xl text-xs font-medium ${
                       otpMessage.success
-                        ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                        : 'bg-rose-950 text-rose-300 border border-rose-800'
+                        ? 'bg-zinc-900 text-[#d4af37] border border-[#d4af37]'
+                        : 'bg-red-950 text-red-200 border border-red-800'
                     }`}
                   >
                     {otpMessage.text}

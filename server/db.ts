@@ -42,7 +42,9 @@ export interface DonationDoc {
   weightKg: number;
   dietary: 'Pure Veg' | 'Non-Veg' | 'Jain';
   preparationTime: string;
+  preparedAt?: string;
   safeConsumptionDeadline: string;
+  safeConsumptionWindow?: number; // in hours or minutes
   storageRequirement: string;
   packagingType: string;
   status: 'AVAILABLE' | 'RESERVED_BY_NGO' | 'ASSIGNED_TRANSPORTER' | 'PICKED_UP' | 'DELIVERED' | 'EXPIRED_REJECTED';
@@ -50,6 +52,8 @@ export interface DonationDoc {
   deliveryOtp: string;
   reservedNgoId?: string;
   assignedTransporterId?: string;
+  assignedVolunteerId?: string;
+  assignedVolunteerName?: string;
   safetyChecklist: {
     temperatureChecked: boolean;
     cleanContainersSealed: boolean;
@@ -60,6 +64,8 @@ export interface DonationDoc {
   createdAt: string;
   dispatchedAt?: string;
   deliveredAt?: string;
+  expiredAt?: string;
+  expirationReason?: string;
   notes?: string;
 }
 
@@ -120,6 +126,13 @@ export interface TripDoc {
   trafficDelayMinutes: number;
   isBackupDispatched: boolean;
   tripConfirmationConfirmed: boolean;
+  activeAlert?: {
+    type: 'EXPIRED_DONATION' | 'TRAFFIC_DELAY' | 'CANCELLATION' | 'SYSTEM';
+    message: string;
+    donationId?: string;
+    foodName?: string;
+    timestamp: string;
+  };
   createdAt: string;
 }
 

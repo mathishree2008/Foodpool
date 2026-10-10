@@ -177,22 +177,22 @@ export const SurplusMapRadar: React.FC<SurplusMapRadarProps> = ({
   return (
     <div className="space-y-5">
       {/* Top Banner Bar */}
-      <div className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border border-emerald-900/40 rounded-3xl p-5 md:p-6 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-zinc-950 border border-[#d4af37]/40 rounded-3xl p-5 md:p-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
-            <h2 className="text-lg md:text-xl font-bold text-slate-100 flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-[#d4af37] animate-ping" />
+            <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
               <span>Surplus Food Map: Small Restaurants, Hostel Messes & Bakeries</span>
             </h2>
           </div>
-          <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+          <p className="text-xs text-zinc-400 mt-1 max-w-2xl leading-relaxed">
             Live geographic radar across Tamil Nadu. Places with available food glow <b className="text-emerald-400">GREEN</b>;
             occupied / reserved places automatically turn <b className="text-rose-400">RED</b>.
           </p>
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-4 bg-slate-950/80 px-4 py-2 rounded-2xl border border-slate-800 text-xs">
+        <div className="flex items-center gap-4 bg-black px-4 py-2 rounded-2xl border border-zinc-800 text-xs">
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
             <span className="font-semibold text-emerald-300">GREEN: Available Food</span>
@@ -205,19 +205,19 @@ export const SurplusMapRadar: React.FC<SurplusMapRadarProps> = ({
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
         {/* Establishment Category Filter */}
         <div className="flex items-center gap-2">
-          <span className="text-slate-400 font-medium">Establishment:</span>
-          <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+          <span className="text-zinc-400 font-medium">Establishment:</span>
+          <div className="flex items-center gap-1 bg-black p-1 rounded-xl border border-zinc-800">
             {['All', 'Restaurant', 'Hostel Mess', 'Bakery'].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedEstablishmentType(cat)}
                 className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
                   selectedEstablishmentType === cat
-                    ? 'bg-emerald-500 text-slate-950 font-bold'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-[#d4af37] text-black font-bold'
+                    : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 {cat === 'All' ? 'All Types' : cat === 'Restaurant' ? '🍽️ Small Restaurants' : cat === 'Hostel Mess' ? '🏢 Hostel Messes' : '🥖 Bakeries'}
@@ -228,12 +228,12 @@ export const SurplusMapRadar: React.FC<SurplusMapRadarProps> = ({
 
         {/* Status Filter: Green vs Red */}
         <div className="flex items-center gap-2">
-          <span className="text-slate-400 font-medium">Status:</span>
-          <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+          <span className="text-zinc-400 font-medium">Status:</span>
+          <div className="flex items-center gap-1 bg-black p-1 rounded-xl border border-zinc-800">
             <button
               onClick={() => setSelectedStatusFilter('All')}
               className={`px-2.5 py-1.5 rounded-lg font-medium cursor-pointer ${
-                selectedStatusFilter === 'All' ? 'bg-slate-800 text-slate-100 font-bold' : 'text-slate-400 hover:text-slate-200'
+                selectedStatusFilter === 'All' ? 'bg-zinc-800 text-white font-bold' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               All ({donations.length})
@@ -241,7 +241,7 @@ export const SurplusMapRadar: React.FC<SurplusMapRadarProps> = ({
             <button
               onClick={() => setSelectedStatusFilter('AVAILABLE')}
               className={`px-2.5 py-1.5 rounded-lg font-medium cursor-pointer ${
-                selectedStatusFilter === 'AVAILABLE' ? 'bg-emerald-500 text-slate-950 font-bold' : 'text-emerald-400 hover:bg-emerald-950/40'
+                selectedStatusFilter === 'AVAILABLE' ? 'bg-emerald-500 text-black font-bold' : 'text-emerald-400 hover:bg-zinc-900'
               }`}
             >
               🟢 Available ({donations.filter((d) => d.status === 'AVAILABLE').length})
@@ -249,7 +249,7 @@ export const SurplusMapRadar: React.FC<SurplusMapRadarProps> = ({
             <button
               onClick={() => setSelectedStatusFilter('OCCUPIED')}
               className={`px-2.5 py-1.5 rounded-lg font-medium cursor-pointer ${
-                selectedStatusFilter === 'OCCUPIED' ? 'bg-rose-500 text-slate-950 font-bold' : 'text-rose-400 hover:bg-rose-950/40'
+                selectedStatusFilter === 'OCCUPIED' ? 'bg-rose-500 text-black font-bold' : 'text-rose-400 hover:bg-zinc-900'
               }`}
             >
               🔴 Occupied ({donations.filter((d) => d.status !== 'AVAILABLE').length})
@@ -259,11 +259,11 @@ export const SurplusMapRadar: React.FC<SurplusMapRadarProps> = ({
 
         {/* City Filter */}
         <div className="flex items-center gap-2">
-          <span className="text-slate-400 font-medium">City:</span>
+          <span className="text-zinc-400 font-medium">City:</span>
           <select
             value={selectedCity}
             onChange={(e) => setSelectedCity(e.target.value)}
-            className="bg-slate-950 border border-slate-800 text-slate-200 px-3 py-1.5 rounded-xl focus:outline-none focus:border-emerald-500"
+            className="bg-black border border-zinc-800 text-zinc-200 px-3 py-1.5 rounded-xl focus:outline-none focus:border-[#d4af37]"
           >
             <option value="All">All Tamil Nadu Cities</option>
             <option value="Chennai">Chennai</option>
@@ -279,12 +279,12 @@ export const SurplusMapRadar: React.FC<SurplusMapRadarProps> = ({
       {/* Map Canvas and Side Inspection Details */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Leaflet Map */}
-        <div className="lg:col-span-8 bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden relative shadow-2xl">
+        <div className="lg:col-span-8 bg-black rounded-2xl border border-zinc-800 overflow-hidden relative shadow-2xl">
           <div ref={mapContainerRef} className="w-full h-[520px] z-10" />
 
           {/* Floating badge over map */}
-          <div className="absolute top-3 left-3 z-20 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 px-3 py-1.5 rounded-xl text-xs text-slate-300 shadow-xl flex items-center gap-2">
-            <span className="font-mono text-emerald-400 font-bold">{filteredDonations.length}</span>
+          <div className="absolute top-3 left-3 z-20 bg-black/90 backdrop-blur-md border border-[#d4af37]/40 px-3 py-1.5 rounded-xl text-xs text-zinc-300 shadow-xl flex items-center gap-2">
+            <span className="font-mono text-[#d4af37] font-bold">{filteredDonations.length}</span>
             <span>Establishments Monitored</span>
           </div>
         </div>
@@ -292,15 +292,15 @@ export const SurplusMapRadar: React.FC<SurplusMapRadarProps> = ({
         {/* Right Detail Card: Information of food supplied, prep time, reach deadline, and needy people */}
         <div className="lg:col-span-4 space-y-4">
           {activeDonation ? (
-            <div className="bg-slate-900/95 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl backdrop-blur-md">
+            <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 space-y-4 shadow-xl">
               {/* Header with Color status */}
-              <div className="flex items-start justify-between gap-2 pb-3 border-b border-slate-800">
+              <div className="flex items-start justify-between gap-2 pb-3 border-b border-zinc-800">
                 <div>
-                  <h3 className="font-bold text-base text-slate-100">{activeDonation.donorName}</h3>
-                  <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-                    <span className="font-medium text-emerald-400">{activeDonation.donorType}</span>
+                  <h3 className="font-bold text-base text-white">{activeDonation.donorName}</h3>
+                  <div className="flex items-center gap-2 text-xs text-zinc-400 mt-0.5">
+                    <span className="font-medium text-[#d4af37]">{activeDonation.donorType}</span>
                     <span>·</span>
-                    <span className="font-mono text-[11px] text-slate-400">{activeDonation.fssaiNumber}</span>
+                    <span className="font-mono text-[11px] text-zinc-400">{activeDonation.fssaiNumber}</span>
                   </div>
                 </div>
                 <span
@@ -317,95 +317,91 @@ export const SurplusMapRadar: React.FC<SurplusMapRadarProps> = ({
               {/* Exact Details Requested by the User */}
               <div className="space-y-3 text-xs">
                 {/* 1. What food is supplied */}
-                <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-1">
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold flex items-center gap-1">
-                    <Package className="w-3.5 h-3.5 text-emerald-400" /> What Food is Supplied:
+                <div className="bg-black p-3 rounded-xl border border-zinc-800 space-y-1">
+                  <span className="text-[10px] text-zinc-400 uppercase tracking-wider block font-semibold flex items-center gap-1">
+                    <Package className="w-3.5 h-3.5 text-[#d4af37]" /> What Food is Supplied:
                   </span>
-                  <p className="font-semibold text-slate-200 text-sm">
-                    {activeDonation.items[0]?.name || 'Cooked South Indian Meals'}
+                  <p className="font-semibold text-white text-sm">
+                    {activeDonation.items?.[0]?.name || (activeDonation as any)?.foodName || 'Cooked South Indian Meals'}
                   </p>
-                  <p className="text-[11px] text-slate-400">
-                    Category: {activeDonation.items[0]?.category} · {activeDonation.items[0]?.dietary}
+                  <p className="text-[11px] text-zinc-400">
+                    Category: {activeDonation.items?.[0]?.category || (activeDonation as any)?.category || 'Cooked Surplus'} · {activeDonation.items?.[0]?.dietary || (activeDonation as any)?.dietary || 'Pure Veg'}
                   </p>
                 </div>
 
                 {/* 2. No. of food supplement portions */}
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+                  <div className="bg-black p-3 rounded-xl border border-zinc-800">
+                    <span className="text-[10px] text-zinc-400 uppercase tracking-wider block font-semibold">
                       Total Servings:
                     </span>
-                    <span className="font-mono text-lg font-bold text-emerald-400">
-                      {activeDonation.totalServings} Meals
+                    <span className="font-mono text-lg font-bold text-[#d4af37]">
+                      {activeDonation.totalServings || (activeDonation as any)?.servings || 45} Meals
                     </span>
                   </div>
-                  <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+                  <div className="bg-black p-3 rounded-xl border border-zinc-800">
+                    <span className="text-[10px] text-zinc-400 uppercase tracking-wider block font-semibold">
                       Net Weight:
                     </span>
-                    <span className="font-mono text-lg font-bold text-amber-400">
-                      {activeDonation.totalWeightKg} Kg
+                    <span className="font-mono text-lg font-bold text-white">
+                      {activeDonation.totalWeightKg || (activeDonation as any)?.weightKg || 16} Kg
                     </span>
                   </div>
                 </div>
 
                 {/* 3. When it is prepared & When it should be reached */}
-                <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-2">
+                <div className="bg-black p-3 rounded-xl border border-zinc-800 space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] text-slate-400 flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-blue-400" /> When Prepared:
+                    <span className="text-[11px] text-zinc-400 flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 text-[#d4af37]" /> When Prepared:
                     </span>
-                    <span className="font-mono text-slate-200 font-semibold">
-                      {new Date(activeDonation.preparationTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <span className="font-mono text-white font-semibold">
+                      {activeDonation.preparationTime ? new Date(activeDonation.preparationTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '12:30 PM'}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center pt-1 border-t border-slate-800/80">
-                    <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                  <div className="flex justify-between items-center pt-1 border-t border-zinc-800">
+                    <span className="text-[11px] text-zinc-400 flex items-center gap-1">
                       <AlertCircle className="w-3.5 h-3.5 text-rose-400" /> When Should Reach (Safe Deadline):
                     </span>
                     <span className="font-mono text-rose-400 font-bold">
-                      {new Date(activeDonation.safeConsumptionDeadline).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {activeDonation.safeConsumptionDeadline ? new Date(activeDonation.safeConsumptionDeadline).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '04:30 PM'}
                     </span>
-                  </div>
-
-                  <div className="text-[11px] text-amber-300 font-mono bg-slate-900 p-2 rounded-lg">
-                    Storage: {activeDonation.storageRequirement} · {activeDonation.packagingType}
                   </div>
                 </div>
 
                 {/* 4. How many needy people need the food */}
-                <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-1">
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold flex items-center gap-1">
-                    <Users className="w-3.5 h-3.5 text-cyan-400" /> Needy People Demand:
+                <div className="bg-black p-3 rounded-xl border border-zinc-800 space-y-1">
+                  <span className="text-[10px] text-zinc-400 uppercase tracking-wider block font-semibold flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5 text-[#d4af37]" /> Needy People Demand:
                   </span>
                   {matchedNgo ? (
                     <div>
-                      <p className="font-semibold text-cyan-300">{matchedNgo.name}</p>
-                      <p className="text-[11px] text-slate-300 mt-0.5">
-                        <b>{matchedNgo.urgentMealDemand} hungry residents</b> currently waiting for dinner.
+                      <p className="font-semibold text-white">{matchedNgo.name}</p>
+                      <p className="text-[11px] text-zinc-300 mt-0.5">
+                        <b className="text-[#d4af37]">{matchedNgo.urgentMealDemand} hungry residents</b> currently waiting for dinner.
                       </p>
                     </div>
                   ) : (
-                    <p className="text-slate-300">
-                      Nearby shelters in {activeDonation.location?.city} need ~<b>{activeDonation.totalServings} portions</b> for tonight.
+                    <p className="text-zinc-300">
+                      Nearby shelters in {activeDonation.location?.city || (activeDonation as any)?.city || 'the area'} need ~<b className="text-[#d4af37]">{activeDonation.totalServings || (activeDonation as any)?.servings || 45} portions</b> for tonight.
                     </p>
                   )}
                 </div>
 
                 {/* Location address */}
-                <div className="text-[11px] text-slate-400 flex items-start gap-1.5 p-2 bg-slate-950 rounded-lg">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>{activeDonation.location?.fullAddress || activeDonation.location?.name}</span>
+                <div className="text-[11px] text-zinc-400 flex items-start gap-1.5 p-2 bg-black rounded-lg">
+                  <MapPin className="w-3.5 h-3.5 text-[#d4af37] shrink-0 mt-0.5" />
+                  <span>{activeDonation.location?.fullAddress || activeDonation.location?.name || (activeDonation as any)?.address || (activeDonation as any)?.locationName}</span>
                 </div>
               </div>
 
               {/* Action */}
-              <div className="pt-2 border-t border-slate-800">
+              <div className="pt-2 border-t border-zinc-800">
                 {activeDonation.status === 'AVAILABLE' ? (
                   <button
                     onClick={() => onReserveDonation && onReserveDonation(activeDonation.id)}
-                    className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all shadow-md shadow-emerald-500/10 cursor-pointer flex items-center justify-center gap-1.5"
+                    className="w-full py-2.5 rounded-xl bg-[#d4af37] hover:bg-[#c29d2b] text-black font-bold text-xs transition-all shadow-md shadow-[#d4af37]/20 cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     <span>Reserve Surplus for Shelter / Pickup</span>
                     <ChevronRight className="w-4 h-4" />
@@ -418,7 +414,7 @@ export const SurplusMapRadar: React.FC<SurplusMapRadarProps> = ({
               </div>
             </div>
           ) : (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center text-xs text-slate-400">
+            <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 text-center text-xs text-zinc-400">
               Select an establishment pin on the map to inspect food supply details.
             </div>
           )}

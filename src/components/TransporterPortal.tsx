@@ -218,9 +218,29 @@ export const TransporterPortal: React.FC<TransporterPortalProps> = ({
           </div>
 
           {activeTrip && (
-            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4 backdrop-blur-md">
+            <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 space-y-4 shadow-xl">
+              {/* Automated Volunteer Notification on Expiration */}
+              {activeTrip.activeAlert && (
+                <div className="p-4 rounded-xl bg-red-950/80 border border-red-500 flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="bg-red-500 text-black text-[10px] font-bold px-2 py-0.5 rounded font-mono uppercase">
+                        Expiration Alert
+                      </span>
+                      <span className="text-red-300 text-[11px] font-mono">
+                        {new Date(activeTrip.activeAlert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <p className="text-xs text-white font-medium">
+                      {activeTrip.activeAlert.message}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Driver & Vehicle Header */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-800">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-800">
                 <div>
                   <h3 className="font-semibold text-slate-100 text-sm flex items-center gap-2">
                     {activeTrip.transporterName}

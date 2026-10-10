@@ -74,7 +74,9 @@ export interface FoodDonation {
   totalServings: number;
   totalWeightKg: number;
   preparationTime: string; // ISO string
+  preparedAt?: string;
   safeConsumptionDeadline: string; // ISO string (e.g., prep + 4-6 hours)
+  safeConsumptionWindow?: number; // hours or minutes window
   storageRequirement: StorageRequirement;
   packagingType: PackagingType;
   status: DonationStatus;
@@ -82,6 +84,8 @@ export interface FoodDonation {
   deliveryOtp: string; // 6 digits (revealed to NGO for final delivery)
   reservedNgoId?: string;
   assignedTransporterId?: string;
+  assignedVolunteerId?: string;
+  assignedVolunteerName?: string;
   safetyChecklist: {
     temperatureChecked: boolean;
     cleanContainersSealed: boolean;
@@ -92,6 +96,8 @@ export interface FoodDonation {
   createdAt: string;
   dispatchedAt?: string;
   deliveredAt?: string;
+  expiredAt?: string;
+  expirationReason?: string;
   notes?: string;
 }
 
@@ -148,6 +154,13 @@ export interface TransporterTrip {
   locationPrivacyActive: boolean; // Ephemeral tracking stops upon delivery
   tripConfirmationConfirmed: boolean;
   transitStepProgress: number; // 0 to 100%
+  activeAlert?: {
+    type: 'EXPIRED_DONATION' | 'TRAFFIC_DELAY' | 'CANCELLATION' | 'SYSTEM';
+    message: string;
+    donationId?: string;
+    foodName?: string;
+    timestamp: string;
+  };
 }
 
 export interface RecipientNGO {

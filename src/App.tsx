@@ -247,6 +247,7 @@ export default function App() {
             <HeroSection
               onGetStarted={() => setCurrentRole('login_gateway')}
               onExploreDashboard={() => setCurrentRole('volunteer_tracking')}
+              onNavigateTab={(tab) => setCurrentRole(tab)}
             />
 
             {/* Real Leaflet & OpenStreetMap Road Routing Integration */}

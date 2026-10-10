@@ -16,9 +16,10 @@ import {
 interface HeroSectionProps {
   onGetStarted: () => void;
   onExploreDashboard: () => void;
+  onNavigateTab?: (tab: 'surplus_map' | 'volunteer_tracking' | 'donor' | 'express_post' | 'clusters_routing') => void;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted, onExploreDashboard }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted, onExploreDashboard, onNavigateTab }) => {
   return (
     <section className="relative overflow-hidden rounded-3xl bg-black border border-[#d4af37]/40 shadow-2xl my-4">
       {/* Background Texture & Real Food Delivery Imagery */}
@@ -113,21 +114,33 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted, onExplor
                     OVERVIEW
                   </span>
                   <div className="space-y-1">
-                    <button className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-zinc-900 text-[#d4af37] border border-[#d4af37]/30 font-semibold text-left">
+                    <button 
+                      onClick={onExploreDashboard}
+                      className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-zinc-900 text-[#d4af37] border border-[#d4af37]/30 font-semibold text-left cursor-pointer hover:bg-zinc-800"
+                    >
                       <LayoutDashboard className="w-3.5 h-3.5" />
-                      Dashboard
+                      Live Volunteer Tracking
                     </button>
-                    <button className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white text-left">
+                    <button 
+                      onClick={() => onNavigateTab ? onNavigateTab('surplus_map') : onExploreDashboard()}
+                      className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white text-left cursor-pointer hover:bg-zinc-900"
+                    >
                       <MapPin className="w-3.5 h-3.5" />
-                      Shelter Map
+                      Surplus Food Map
                     </button>
-                    <button className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white text-left">
+                    <button 
+                      onClick={() => onNavigateTab ? onNavigateTab('clusters_routing') : onExploreDashboard()}
+                      className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white text-left cursor-pointer hover:bg-zinc-900"
+                    >
                       <History className="w-3.5 h-3.5" />
-                      Donation History
+                      Micro-Clusters
                     </button>
-                    <button className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white text-left">
+                    <button 
+                      onClick={() => onNavigateTab ? onNavigateTab('donor') : onExploreDashboard()}
+                      className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white text-left cursor-pointer hover:bg-zinc-900"
+                    >
                       <Package className="w-3.5 h-3.5" />
-                      Items
+                      Donor Food Post
                     </button>
                   </div>
 

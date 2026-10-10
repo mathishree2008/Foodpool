@@ -80,7 +80,10 @@ donationsRouter.post('/', authenticateToken, async (req: AuthRequest, res: Respo
       servings,
       weightKg,
       dietary,
+      preparedAt,
+      preparationTime,
       safeConsumptionHours,
+      safeConsumptionWindow,
       storageRequirement,
       packagingType,
       locationName,
@@ -100,8 +103,9 @@ donationsRouter.post('/', authenticateToken, async (req: AuthRequest, res: Respo
     const pickupOtp = Math.floor(100000 + Math.random() * 900000).toString();
     const deliveryOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const hours = Number(safeConsumptionHours) || 4;
-    const safeConsumptionDeadline = new Date(Date.now() + hours * 3600 * 1000).toISOString();
+    const hours = Number(safeConsumptionHours || safeConsumptionWindow) || 4;
+    const prepIso = preparedAt || preparationTime || new Date().toISOString();
+    const safeConsumptionDeadline = new Date(new Date(prepIso).getTime() + hours * 3600 * 1000).toISOString();
 
     const newDonation: DonationDoc = {
       id: `don-${Date.now().toString().slice(-5)}`,
@@ -121,8 +125,10 @@ donationsRouter.post('/', authenticateToken, async (req: AuthRequest, res: Respo
       servings: Number(servings),
       weightKg: Number(weightKg),
       dietary: dietary || 'Pure Veg',
-      preparationTime: new Date().toISOString(),
+      preparationTime: prepIso,
+      preparedAt: prepIso,
       safeConsumptionDeadline,
+      safeConsumptionWindow: hours,
       storageRequirement: storageRequirement || 'Hot (Maintain > 60°C)',
       packagingType: packagingType || 'Sealed Stainless Steel Casseroles',
       status: 'AVAILABLE',
