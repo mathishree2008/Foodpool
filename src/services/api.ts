@@ -240,6 +240,21 @@ export const api = {
 
     async getStaleAudit(): Promise<{ logs: any[] }> {
       return request('/donations/stale-audit');
+    },
+
+    async aiDetect(data: { foodDescription: string; categoryHint?: string; establishmentType?: string }): Promise<{ assessment: any }> {
+      return request('/donations/ai-detect', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    },
+
+    async expressQr(data: any): Promise<{ message: string; donation: any }> {
+      const res = await request<{ message: string; donation: any }>('/donations/express-qr', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+      return { ...res, donation: normalizeDonation(res.donation) };
     }
   },
 
@@ -314,6 +329,13 @@ export const api = {
   routing: {
     async calculateDetour(data: any): Promise<any> {
       return request('/routing/calculate-detour', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    },
+
+    async aiOptimizeCircuit(data: any): Promise<any> {
+      return request('/routing/ai-optimize-circuit', {
         method: 'POST',
         body: JSON.stringify(data)
       });

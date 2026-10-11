@@ -2,8 +2,114 @@ import { Router, Request, Response } from 'express';
 import { db, DonationDoc } from '../db';
 import { authenticateToken, AuthRequest } from './auth';
 import { purgeStaleDonations, getStaleAuditLogs } from '../services/scheduler';
+import { detectFoodAvailability } from '../services/geminiService';
 
 export const donationsRouter = Router();
+
+// AI FOOD AVAILABILITY & SHELF-LIFE SCANNER
+donationsRouter.post('/ai-detect', async (req: Request, res: Response) => {
+  try {
+    const { foodDescription, categoryHint, establishmentType } = req.body;
+    if (!foodDescription) {
+      return res.status(400).json({ error: 'Food description or item details are required for AI assessment.' });
+    }
+
+    const assessment = await detectFoodAvailability(foodDescription, categoryHint, establishmentType);
+    return res.json({ assessment });
+  } catch (err: any) {
+    return res.status(500).json({ error: 'AI food detection error: ' + err.message });
+  }
+});
+
+// ZERO-LOGIN EXPRESS QR REPORTING (Phase 1 Deliverable)
+// Allows hotels, bakeries, restaurants and hostel messes to report surplus instantly via QR scan
+donationsRouter.post('/express-qr', async (req: Request, res: Response) => {
+  try {
+    const {
+      establishmentId,
+      establishmentName,
+      establishmentCategory,
+      fssaiNumber,
+      foodName,
+      category,
+      servings,
+      weightKg,
+      dietary,
+      preparedAt,
+      preparationTime,
+      safeConsumptionHours,
+      safeConsumptionWindow,
+      storageRequirement,
+      packagingType,
+      locationName,
+      address,
+      lat,
+      lng,
+      city,
+      phone,
+      notes
+    } = req.body;
+
+    if (!foodName || !servings || !weightKg) {
+      return res.status(400).json({ error: 'Food item, servings, and weight in kg are required.' });
+    }
+
+    const hours = Number(safeConsumptionHours || safeConsumptionWindow) || 3.5;
+    const prepIso = preparedAt || preparationTime || new Date().toISOString();
+    const safeConsumptionDeadline = new Date(new Date(prepIso).getTime() + hours * 3600 * 1000).toISOString();
+
+    const pickupOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const deliveryOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const newDonation: DonationDoc = {
+      id: `micro-${Date.now().toString().slice(-5)}`,
+      donorId: establishmentId || `donor-qr-${Date.now().toString().slice(-4)}`,
+      donorName: establishmentName || 'Registered Establishment (QR)',
+      donorType: establishmentCategory || 'Restaurant',
+      fssaiNumber: fssaiNumber || 'TN-FSSAI-QR-VERIFIED',
+      isFssaiVerified: true,
+      phone: phone || '+91 98401 55219',
+      city: city || 'Chennai',
+      locationName: locationName || `${city || 'Chennai'} Station`,
+      lat: Number(lat) || 13.0418,
+      lng: Number(lng) || 80.2341,
+      address: address || 'Commercial Street, Tamil Nadu',
+      foodName,
+      category: category || 'Cooked Meals (Rice/Sambar/Curry)',
+      servings: Number(servings),
+      weightKg: Number(weightKg),
+      dietary: dietary || 'Pure Veg',
+      preparationTime: prepIso,
+      preparedAt: prepIso,
+      safeConsumptionDeadline,
+      safeConsumptionWindow: hours,
+      storageRequirement: storageRequirement || 'Hot (Maintain > 60°C)',
+      packagingType: packagingType || 'Sealed Stainless Steel Casseroles',
+      status: 'AVAILABLE',
+      pickupOtp,
+      deliveryOtp,
+      safetyChecklist: {
+        temperatureChecked: true,
+        cleanContainersSealed: true,
+        hygienicHandlingVerified: true,
+        odourTextureChecked: true
+      },
+      privacyConsent: true,
+      createdAt: new Date().toISOString(),
+      notes: notes || 'Submitted via 30s QR Sticker Kitchen portal'
+    };
+
+    const donations = db.collection<DonationDoc>('donations');
+    await donations.insertOne(newDonation);
+
+    return res.status(201).json({
+      message: 'Surplus food reported via QR code! Assigned to local NGO route pool.',
+      donation: formatDonationResponse(newDonation)
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: 'Failed to process QR food submission: ' + err.message });
+  }
+});
 
 // AUTOMATED SCHEDULER: MANUAL TRIGGER & STATUS
 donationsRouter.post('/purge-stale', async (req: Request, res: Response) => {
